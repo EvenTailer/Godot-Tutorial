@@ -1,0 +1,247 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ */
+/*  Дизайн-токены                                                       */
+/*  Единственный источник правды по цветам, радиусам, теням и ритму.  */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  :root {
+    /* Поверхности */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Акценты */
+    --primary: 205 72% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 40%;
+    --accent: 205 90% 94%;
+    --accent-foreground: 205 72% 26%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 62% 28%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 95% 28%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 90% 32%;
+    --info-foreground: 0 0% 100%;
+
+    /* Контуры */
+    --border: 214 32% 88%;
+    --input: 214 32% 88%;
+    --ring: 205 72% 36%;
+
+    /* Диаграммы */
+    --diagram-surface: 210 40% 98%;
+    --diagram-node: 0 0% 100%;
+    --diagram-node-strong: 205 90% 94%;
+    --diagram-stroke: 214 25% 52%;
+    --diagram-text: 222 47% 15%;
+    --diagram-muted: 215 16% 42%;
+    --diagram-flow: 205 72% 36%;
+    --diagram-weak: 215 18% 52%;
+    --diagram-accent: 205 72% 36%;
+    --diagram-accent-soft: 205 90% 92%;
+
+    /* Радиусы */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-2xl: 28px;
+    --radius: 10px;
+
+    /* Тени */
+    --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+    --shadow-sm: 0 1px 3px 0 rgb(15 23 42 / 0.1), 0 1px 2px -1px rgb(15 23 42 / 0.1);
+    --shadow-md: 0 4px 12px -2px rgb(15 23 42 / 0.12), 0 2px 6px -2px rgb(15 23 42 / 0.08);
+    --shadow-lg: 0 12px 32px -8px rgb(15 23 42 / 0.18);
+    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.45);
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --card: 222 40% 11%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 44% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 205 90% 62%;
+    --primary-foreground: 222 47% 8%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 16%;
+    --muted-foreground: 215 20% 72%;
+    --accent: 205 40% 18%;
+    --accent-foreground: 205 90% 82%;
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 222 47% 8%;
+    --success: 142 60% 48%;
+    --success-foreground: 222 47% 8%;
+    --warning: 32 95% 58%;
+    --warning-foreground: 222 47% 8%;
+    --info: 199 85% 58%;
+    --info-foreground: 222 47% 8%;
+
+    --border: 217 33% 22%;
+    --input: 217 33% 22%;
+    --ring: 205 90% 62%;
+
+    --diagram-surface: 222 47% 7%;
+    --diagram-node: 222 40% 13%;
+    --diagram-node-strong: 205 40% 18%;
+    --diagram-stroke: 215 25% 62%;
+    --diagram-text: 210 40% 94%;
+    --diagram-muted: 215 20% 70%;
+    --diagram-flow: 205 90% 62%;
+    --diagram-weak: 215 20% 50%;
+    --diagram-accent: 205 90% 62%;
+    --diagram-accent-soft: 205 45% 20%;
+
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.55), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans text-body antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Видимый фокус — обязательное требование доступности. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.22);
+  }
+
+  /* Минимальная зона нажатия — 44px. */
+  button,
+  a,
+  input,
+  select,
+  summary {
+    touch-action: manipulation;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-foreground;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Скролл внутри диаграмм и длинных блоков. */
+  .scroll-x {
+    @apply overflow-x-auto overscroll-x-contain;
+    scrollbar-width: thin;
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply absolute left-4 top-4 z-50 -translate-y-24 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-md transition-transform focus-visible:translate-y-0;
+  }
+
+  .prose-content {
+    @apply max-w-prose text-body leading-relaxed;
+  }
+
+  .prose-content p + p {
+    @apply mt-4;
+  }
+
+  .kbd {
+    @apply inline-flex min-w-[1.75rem] items-center justify-center rounded-xs border border-border bg-muted px-1.5 py-0.5 font-mono text-tiny text-muted-foreground;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Доступность: отключение анимаций по системной настройке            */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Печать в PDF                                                        */
+/* ------------------------------------------------------------------ */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+  }
+
+  .no-print,
+  nav,
+  footer,
+  .print-hidden {
+    display: none !important;
+  }
+
+  .print-break-before {
+    break-before: page;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid;
+  }
+
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+    color: #444;
+  }
+
+  details {
+    display: block;
+  }
+
+  details > * {
+    display: revert;
+  }
+}

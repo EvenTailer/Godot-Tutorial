@@ -148,7 +148,7 @@ export const resourceGroups: ResourceGroup[] = [
         title: 'Godot Asset Library',
         url: 'https://godotengine.org/asset-library/asset',
         kind: 'tool',
-        note: 'Плагины и шаблоны прямо в редакторе: Editor → Manage Editor Plugins.',
+        note: 'Плагины и шаблоны прямо в редакторе: Project → Project Settings → Plugins.',
       },
     ],
   },

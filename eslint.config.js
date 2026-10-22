@@ -18,7 +18,10 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      // В eslint-plugin-react-hooks 6.x configs.recommended — это flat-конфиг
+      // (массив), а не объект с .rules. Старый ...configs.recommended.rules
+      // молча разворачивался в ничего, и правила хуков не проверялись.
+      ...reactHooks.configs['flat/recommended'].rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-console': ['warn', { allow: ['warn', 'error'] }],

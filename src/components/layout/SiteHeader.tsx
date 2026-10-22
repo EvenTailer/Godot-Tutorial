@@ -39,29 +39,32 @@ export function SiteHeader() {
 
         <nav aria-label="Основная навигация" className="hidden lg:block">
           <ul className="flex items-center gap-1">
-            {navItems.map((item) => (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    cn(
-                      'inline-flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition-colors duration-150',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                      isActive
-                        ? 'bg-accent text-accent-foreground'
-                        : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
-                    )
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
+            {navItems
+              .filter((item) => item.inHeader !== false)
+              .map((item) => (
+                <li key={item.to}>
+                  <NavLink
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      cn(
+                        'inline-flex min-h-11 items-center rounded-md px-3 text-sm font-medium transition-colors duration-150',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                        isActive
+                          ? 'bg-accent text-accent-foreground'
+                          : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
+                      )
+                    }
+                  >
+                    {item.shortLabel ?? item.label}
+                  </NavLink>
+                </li>
+              ))}
           </ul>
         </nav>
 
-        <div className="ml-auto hidden max-w-xs flex-1 md:block">
+        {/* Поиск виден от lg: на ноутбуках 1024–1279px иначе его нет нигде. */}
+        <div className="ml-auto hidden min-w-0 max-w-[12rem] flex-1 lg:block xl:max-w-xs">
           <SearchBar />
         </div>
 
@@ -110,7 +113,7 @@ export function SiteHeader() {
                     )
                   }
                 >
-                  {item.label}
+                  {item.shortLabel ?? item.label}
                 </NavLink>
               </li>
             ))}

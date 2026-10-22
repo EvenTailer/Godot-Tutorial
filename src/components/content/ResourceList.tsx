@@ -48,6 +48,7 @@ export function ResourceList({ resources, className }: ResourceListProps) {
                   aria-hidden="true"
                   className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors duration-150 group-hover:text-primary"
                 />
+                <span className="sr-only">(откроется в новой вкладке)</span>
               </div>
               {resource.note ? (
                 <p className="text-small text-muted-foreground">{resource.note}</p>

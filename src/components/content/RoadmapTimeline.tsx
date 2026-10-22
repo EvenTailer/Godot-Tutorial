@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 import { CheckCircle2, Circle } from 'lucide-react'
-import type { Stage } from '@/content/types'
+import type { StageManifest } from '@/content/stages/manifest'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 export interface RoadmapTimelineProps {
-  stages: Stage[]
+  stages: StageManifest[]
   /** Доля выполненных пунктов этапа, 0..1. */
-  progressOf: (stage: Stage) => number
+  progressOf: (stage: StageManifest) => number
   className?: string
 }
 
@@ -57,7 +57,7 @@ export function RoadmapTimeline({ stages, progressOf, className }: RoadmapTimeli
               <h3 className="mt-2 text-h2 font-semibold leading-tight">
                 <Link
                   to={`/stage/${stage.slug}`}
-                  className="rounded-sm transition-colors duration-150 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="inline-flex min-h-11 items-center rounded-sm transition-colors duration-150 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   {stage.title}
                 </Link>

@@ -20,10 +20,15 @@ export default defineConfig({
     reportCompressedSize: true,
     rollupOptions: {
       output: {
+        // Мелкие чанки-иконки склеиваются: так меньше HTTP-запросов на первой загрузке.
+        experimentalMinChunkSize: 12000,
         manualChunks: {
-          react: ['react', 'react-dom', 'react-router-dom'],
+          // react-dom/client — отдельная точка входа: без неё 64 KB gzip
+          // остаются в entry-чанке и инвалидируют кэш при любой правке кода.
+          react: ['react', 'react-dom', 'react-dom/client', 'react-router-dom'],
+          // Справочные модули: приходят вместе, когда читатель открывает
+          // соответствующую страницу.
           content: [
-            './src/content/stages/index.ts',
             './src/content/cheatsheets.ts',
             './src/content/faq.ts',
             './src/content/glossary.ts',
@@ -31,7 +36,14 @@ export default defineConfig({
             './src/content/plan-24-weeks.ts',
             './src/content/project-ladder.ts',
             './src/content/diagrams.ts',
+            './src/content/versions.ts',
           ],
+          // Справочник ошибок — отдельным чанком: он нужен главной (счётчик)
+          // и странице /errors, но не должен тащить за собой остальные модули.
+          errors: ['./src/content/errors.ts'],
+          // Этапы намеренно НЕ объединены: каждый грузится своим чанком
+          // (import.meta.glob в StagePage), поэтому корпус курса не едет
+          // вместе с любой страницей.
         },
       },
     },

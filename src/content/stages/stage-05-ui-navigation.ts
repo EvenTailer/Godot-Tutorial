@@ -29,7 +29,7 @@ export const stage05: Stage = {
         'CanvasLayer — слой поверх всего; в нём живёт HUD.',
         'Control работает с «якорями» (anchors) и «отступами» (offsets).',
         'PanelContainer и MarginContainer автоматически подстраивают размер под содержимое — не надо считать пиксели.',
-        'Label умеет авторазмер: autowrap_mode = 2 (Word Smart).',
+        'Label умеет авторазмер: autowrap_mode = TextServer.AUTOWRAP_WORD_SMART (значение 3). Значение 2 — это AUTOWRAP_WORD, он переносит по словам без учёта длинных слов.',
         'Theme — общая тема оформления, задаётся на корневом Control и наследуется вниз.',
       ],
       diagramRef: 'ui-anchors',
@@ -96,7 +96,7 @@ export const stage05: Stage = {
         'Управление фокусом: ui_up, ui_down, ui_left, ui_right — стандартные действия.',
         'focus_mode = Control.FOCUS_ALL, чтобы узел мог получить фокус.',
         'Соседние узлы: focus_neighbor_top / focus_next.',
-        ' grabbed_focus — узел, который получит фокус при открытии экрана.',
+        ' grab_focus() — метод, который передаёт фокус нужному узлу (например, resume_button.grab_focus()). Свойства grabbed_focus в Godot нет.',
         'Скрытые и disabled-узлы пропускаются при переборе фокуса.',
       ],
       diagramRef: 'input-order',
@@ -146,14 +146,14 @@ export const stage05: Stage = {
       title: 'Управление паузой',
       where: 'Скрипт main.gd',
       action:
-        'По нажатию действия "pause" переключайте get_tree().paused. В обработчике кнопки «Продолжить» — то же самое. Кнопка «Заново» вызывает get_tree().reload_current_scene().',
+        'Сначала создайте действие ввода "pause" в Project → Project Settings → Input Map (из коробки есть только ui_cancel) и привяжите к Escape. По нажатию действия "pause" переключайте get_tree().paused. В обработчике кнопки «Продолжить» — то же самое. Кнопка «Заново» вызывает get_tree().reload_current_scene().',
       result: 'Esc останавливает игру и открывает меню; «Продолжить» возвращает управление.',
       note: 'reload_current_scene() — самый чистый способ перезапустить уровень.',
     },
     {
       id: 's5-6',
       title: 'Главное меню',
-      where: 'Project Settings → Application → Run → Main Scene',
+      where: 'Project → Project Settings → Application → Run → Main Scene',
       action:
         'Создайте сцену main_menu.tscn, сделайте её главной в Project Settings. Кнопка «Играть» вызывает change_scene_to_file("res://scenes/level_1.tscn").',
       result: 'При запуске открывается меню, из которого можно попасть в игру.',
@@ -411,7 +411,7 @@ func _notification(what: int) -> void:
     },
     {
       title: 'Несколько сцен в одном проекте',
-      url: 'https://docs.godotengine.org/en/stable/getting_started/step_by_step/convert_to_2d.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/best_practices/scene_organization.html',
       kind: 'docs',
     },
   ],

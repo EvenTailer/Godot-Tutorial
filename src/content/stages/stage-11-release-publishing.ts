@@ -27,8 +27,8 @@ export const stage11: Stage = {
         'Экспорт — это не «ещё одна кнопка». Здесь задаются размер окна, иконка, версия, подпись — то, что делает игру готовым продуктом, а не запуском из редактора.',
       details: [
         'Project → Export… («Проект → Экспорт…») открывает окно пресетов.',
-        'Сначала нужны шаблоны экспорта: File → Manage Export Templates… и скачать их через интерфейс.',
-        'Файлы шаблонов лежат в ~/.local/share/godot/export_templates/<версия>/ на Linux/macOS и в %APPDATA%\\Godot\\export_templates\\<версия>\\ на Windows.',
+        'Сначала нужны шаблоны экспорта: Editor → Manage Export Templates… и скачать их через интерфейс.',
+        'Файлы шаблонов лежат в ~/.local/share/godot/export_templates/<версия>/ на Linux, в ~/Library/Application Support/Godot/export_templates/<версия>/ на macOS и в %APPDATA%\\Godot\\export_templates\\<версия>\\ на Windows.',
         'Экспортированная игра не содержит редактора — только игру и данные.',
         'Файлы пользователя (сохранения) лежат отдельно, в user://, и не попадают в сборку.',
       ],
@@ -61,10 +61,10 @@ export const stage11: Stage = {
         'Самый частый вопрос новичка: «я нажал Export, а он пишет, что нет шаблонов». Ответ всегда один — шаблоны нужно скачать.',
       details: [
         'Шаблоны — отдельная загрузка (~1 ГБ со всеми платформами), версия должна совпадать с версией движка.',
-        'File → Manage Export Templates… → Download and Install.',
+        'Editor → Manage Export Templates… → Download and Install.',
         'Версию движка видно в правом верхнем углу редактора.',
         'Если обновили движок — шаблоны тоже нужно обновить.',
-        'Шаблоны можно положить в папку проекта в .godot/export_templates, чтобы версия была у всех в команде.',
+        'Шаблоны ставятся глобально, в папку данных редактора, — они общие для всех проектов на этой машине. В папку проекта их положить нельзя: .godot/ у нас в .gitignore, так что «одинаковая версия у всей команды» так не получится — заведите в README команды список версий.',
       ],
       diagramRef: 'export-presets',
     },
@@ -80,7 +80,7 @@ export const stage11: Stage = {
         'Windows: .exe + .pck (или один .exe через Embed PCK).',
         'Linux: .x86_64 бинарник, chmod +x для запуска.',
         'macOS: .app или .dmg, нужен значок .icns.',
-        'Web: HTML5-экспорт, работает в браузере. Ограничения: нет потоков в один поток, другие правила загрузки ресурсов.',
+        'Web: HTML5-экспорт, работает в браузере. Ограничения: потоки ограничены одним (нужен пресет без threads), асинхронная загрузка ресурсов работает иначе.',
         'Android: нужен Android SDK, JDK и ключ подписи. iOS: нужна macOS с Xcode.',
         'Для учебного проекта достаточно Windows + Linux.',
       ],
@@ -124,7 +124,7 @@ export const stage11: Stage = {
     {
       id: 's11-1',
       title: 'Проверить настройки релиза',
-      where: 'File → Project Settings → Display / Application',
+      where: 'Project → Project Settings → Display / Application',
       action:
         'Задайте размер окна 1280×720, имя приложения, версию 1.0.0, включите заставку и поставьте иконку.',
       result: 'В настройках проекта заполнены имя, версия, размер окна и иконка.',
@@ -134,7 +134,7 @@ export const stage11: Stage = {
     {
       id: 's11-2',
       title: 'Скачать шаблоны экспорта',
-      where: 'File → Manage Export Templates…',
+      where: 'Editor → Manage Export Templates…',
       action:
         'Откройте окно, нажмите «Download and Install». Дождитесь загрузки (около гигабайта).',
       result: 'В окне появилась отметка о том, что шаблоны установлены.',
@@ -146,7 +146,7 @@ export const stage11: Stage = {
       title: 'Создать пресет',
       where: 'Project → Export… → Add… → Windows Desktop',
       action:
-        'Добавьте пресет Windows Desktop. В настройках пресета укажите путь экспорта, включите «Export Project» для режима, задайте иконку и версию.',
+        'Добавьте пресет Windows Desktop. В настройках пресета укажите путь экспорта, задайте иконку. Если хотите один файл — включите «Embed PCK». Версию игры задают в Project → Project Settings → Application → Config → Version, в пресете её нет.',
       result: 'В списке появился пресет с настроенными параметрами.',
       note: 'Файл export_presets.cfg сохраняется в проекте — его нужно коммитить в Git, тогда у всей команды одинаковые настройки сборки.',
     },
@@ -297,7 +297,8 @@ func run_all() -> bool:
 
 func _check_save_path() -> void:
 	var dir := SAVE_PATH.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir):
+	var absolute := ProjectSettings.globalize_path(dir)
+	if not DirAccess.dir_exists_absolute(absolute):
 		problems.append("Нет папки сохранений: " + dir)
 
 func _check_main_scene() -> void:
@@ -335,7 +336,7 @@ func _check_no_debug_print() -> void:
 const BUILD_DIR := "user://build"
 
 func prepare_build_dir() -> Error:
-	if DirAccess.dir_exists_absolute(BUILD_DIR):
+	if DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(BUILD_DIR)):
 		var error := DirAccess.remove_absolute(ProjectSettings.globalize_path(BUILD_DIR))
 		if error != OK:
 			return error
@@ -423,7 +424,7 @@ func export_log_path() -> String:
       id: 'c11-1',
       text: 'Понимаю, как устроен экспорт и зачем нужны шаблоны',
       check:
-        'Объясняю роль export_presets.cfg, шаблонов экспорта и папки .godot, и собираю игру без ошибок.',
+        'Объясняю роль export_presets.cfg и папки шаблонов экспорта, и собираю игру без ошибок.',
     },
     {
       id: 'c11-2',

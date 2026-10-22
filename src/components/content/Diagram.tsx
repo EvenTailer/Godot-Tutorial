@@ -31,7 +31,12 @@ export function Diagram({ id, className }: DiagramProps) {
         <span className="shrink-0 text-tiny text-muted-foreground sm:hidden">→ прокрутите</span>
       </figcaption>
 
-      <div className="scroll-x bg-[hsl(var(--diagram-surface))] px-3 py-4">
+      <div
+        className="scroll-x bg-[hsl(var(--diagram-surface))] px-3 py-4"
+        tabIndex={0}
+        role="region"
+        aria-label={`Схема «${meta.title}» — прокрутите вбок, чтобы увидеть её целиком`}
+      >
         <div style={{ minWidth: meta.minWidth }} className="w-full">
           <Component />
         </div>
@@ -56,8 +61,15 @@ function LegendMark({ kind }: { kind: 'flow' | 'weak' | 'node' | 'accent' }) {
   if (kind === 'flow') {
     return (
       <svg aria-hidden="true" width="26" height="10" viewBox="0 0 26 10">
-        <line x1="1" y1="5" x2="20" y2="5" stroke="var(--diagram-flow)" strokeWidth="1.8" />
-        <path d="M 19 1 L 25 5 L 19 9 z" fill="var(--diagram-flow)" />
+        <line
+          x1="1"
+          y1="5"
+          x2="20"
+          y2="5"
+          strokeWidth="1.8"
+          style={{ stroke: 'hsl(var(--diagram-flow))' }}
+        />
+        <path d="M 19 1 L 25 5 L 19 9 z"  style={{ fill: 'hsl(var(--diagram-flow))' }} />
       </svg>
     )
   }
@@ -69,11 +81,11 @@ function LegendMark({ kind }: { kind: 'flow' | 'weak' | 'node' | 'accent' }) {
           y1="5"
           x2="20"
           y2="5"
-          stroke="var(--diagram-weak)"
           strokeWidth="1.4"
           strokeDasharray="6 5"
+          style={{ stroke: 'hsl(var(--diagram-weak))' }}
         />
-        <path d="M 19 1 L 25 5 L 19 9 z" fill="var(--diagram-weak)" />
+        <path d="M 19 1 L 25 5 L 19 9 z"  style={{ fill: 'hsl(var(--diagram-weak))' }} />
       </svg>
     )
   }
@@ -85,9 +97,8 @@ function LegendMark({ kind }: { kind: 'flow' | 'weak' | 'node' | 'accent' }) {
         width="15"
         height="11"
         rx="3"
-        fill={kind === 'accent' ? 'var(--diagram-accent-soft)' : 'var(--diagram-node)'}
-        stroke={kind === 'accent' ? 'var(--diagram-accent)' : 'var(--diagram-stroke)'}
         strokeWidth="1.4"
+        style={{ fill: (kind === 'accent' ? 'hsl(var(--diagram-accent-soft))' : 'hsl(var(--diagram-node))'), stroke: (kind === 'accent' ? 'hsl(var(--diagram-accent))' : 'hsl(var(--diagram-stroke))') }}
       />
     </svg>
   )

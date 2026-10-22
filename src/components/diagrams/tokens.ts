@@ -7,16 +7,16 @@
  */
 
 export const diagramColor = {
-  surface: 'var(--diagram-surface)',
-  node: 'var(--diagram-node)',
-  nodeStrong: 'var(--diagram-node-strong)',
-  stroke: 'var(--diagram-stroke)',
-  text: 'var(--diagram-text)',
-  muted: 'var(--diagram-muted)',
-  flow: 'var(--diagram-flow)',
-  weak: 'var(--diagram-weak)',
-  accent: 'var(--diagram-accent)',
-  accentSoft: 'var(--diagram-accent-soft)',
+  surface: 'hsl(var(--diagram-surface))',
+  node: 'hsl(var(--diagram-node))',
+  nodeStrong: 'hsl(var(--diagram-node-strong))',
+  stroke: 'hsl(var(--diagram-stroke))',
+  text: 'hsl(var(--diagram-text))',
+  muted: 'hsl(var(--diagram-muted))',
+  flow: 'hsl(var(--diagram-flow))',
+  weak: 'hsl(var(--diagram-weak))',
+  accent: 'hsl(var(--diagram-accent))',
+  accentSoft: 'hsl(var(--diagram-accent-soft))',
 } as const
 
 export const diagramFont = {

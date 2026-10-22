@@ -2,7 +2,7 @@ import type { Stage } from '../types'
 
 /**
  * Этап 08 — Архитектура и рефакторинг.
- * Цель этап��: превратить работающий прототип в код, который можно расширять, не боясь его сломать.
+ * Цель этапа: превратить работающий прототип в код, который можно расширять, не боясь его сломать.
  */
 export const stage08: Stage = {
   id: '08',
@@ -26,7 +26,7 @@ export const stage08: Stage = {
       why:
         'Автолоады решают проблему «кто это вообще создал»: счётчик очков, менеджер сохранений, аудио, переходы между сценами. Без них эти вещи приходится искать по всей сцене.',
       details: [
-        'Project Settings → Autoload → Add Autoload: указываете путь к скрипту и имя.',
+        'Project → Project Settings → Autoload → Add Autoload: указываете путь к скрипту и имя.',
         'Доступ: по имени — `ScoreManager.add_points(10)`. Имя в snake_case становится именем узла.',
         'Автолоад — это обычный узел сextends Node. Он живёт всё время работы игры.',
         'Ссылаться на автолоады из сцен — нормально. Ссылаться на сцены из автолоадов — плохо.',
@@ -96,7 +96,7 @@ export const stage08: Stage = {
         'Группа задаётся в Inspector → Node → Groups или через add_to_group() в _ready().',
         'get_nodes_in_group() возвращает массив — с ним удобно работать циклом.',
         'Обратный поиск: get_tree().get_first_node_in_group("player").',
-        'Фильтрация по типу: узлы в группе потом проверяются через is Node2D, а не через каст.',
+        'Фильтрация по типу: узлы из группы проверяются оператором node is Node2D, а не приведением типа.',
         'Не злоупотребляйте: группа — это «все враги», а не «всё в дереве».',
       ],
       diagramRef: 'scene-tree',
@@ -141,11 +141,11 @@ export const stage08: Stage = {
     {
       id: 's8-3',
       title: 'Вынести счёт в автолоад',
-      where: 'Project Settings → Autoload',
+      where: 'Project → Project Settings → Autoload',
       action:
         'Создайте скрипт score_manager.gd с единственной обязанностью: хранить очки и сообщать об изменении. Зарегистрируйте его как автолоад ScoreManager.',
       result: 'Счёт живёт в одном месте, HUD читает его через сигнал.',
-      note: 'Счётчик сбрасывается при смене сцены, если это автолоад. Если нужно сохранять между сценами — вызывайте reset() явно.',
+      note: 'Автолоад живёт всё время работы игры и НЕ сбрасывается при смене сцены — это и есть его смысл. Если счётчик нужно сбросить — вызывайте reset() явно.',
       diagramRef: 'autoload-architecture',
     },
     {
@@ -165,7 +165,7 @@ export const stage08: Stage = {
       action:
         'Найдите все обращения вида $Level/Enemies/Enemy3 и замените их на get_tree().get_nodes_in_group("enemies").',
       result: 'Код переживает перестановку узлов в сцене.',
-      note: 'Сначала добавьте узлы в группу, потом заменяйте обращения — иначе игра временно перестанет видеть врагов.',
+      note: 'Сначала добавьте узлы в группу, потом заменяйте обращения — иначе игра временно перестанет видеть врагов. Если берёте пример `enemy_manager.gd`, создайте в сцене узел `SpawnPoints` (Node2D): его дети — точки спавна, а рядом с ними — шаблон врага `Enemy`. Без этого узла менеджер просто ничего не spawn-ит (и не падает).',
     },
     {
       id: 's8-6',
@@ -340,16 +340,24 @@ func alive_enemies() -> Array[Node2D]:
 func _try_spawn() -> void:
 	if alive_enemies().size() >= MAX_ALIVE:
 		return
-	var spawn_point := $SpawnPoints.get_child(randi() % $SpawnPoints.get_child_count())
-	var enemy := spawn_point.get_parent().get_node("Enemy").duplicate()
+	# Без узла SpawnPoints спавнить некуда — выходим, а не падаем.
+	var spawn_root := get_node_or_null("SpawnPoints") as Node2D
+	if spawn_root == null or spawn_root.get_child_count() == 0:
+		return
+	# Шаблон врага лежит рядом с точками спавна: SpawnPoints/Enemy.
+	var template := spawn_root.get_node_or_null("Enemy") as Node2D
+	if template == null:
+		return
+	var spawn_point := spawn_root.get_child(randi() % spawn_root.get_child_count()) as Node2D
+	var enemy := template.duplicate() as Node2D
 	enemy.global_position = spawn_point.global_position
 	enemy.add_to_group(ENEMY_GROUP)
 	add_child(enemy)
 `,
       explanation:
-        'Группа — это «все враги», где бы они ни находились в дереве. `alive_enemies()` фильтрует не только по группе, но и по типу: в группу теоретически может попасть что угодно. Проверка `node is Node2D` — это фильтрация вместо опасного каста: она безопасна и читается сразу.',
+        'Группа — это «все враги», где бы они ни находились в дереве. `alive_enemies()` фильтрует не только по группе, но и по типу: в группу теоретически может попасть что угодно. Проверка `node is Node2D` — это фильтрация вместо опасного каста: она безопасна и читается сразу. Обратите внимание на `get_node_or_null`: менеджер не падает, если в сцене нет узла `SpawnPoints`. Ожидаемая структура: `SpawnPoints` (Node2D) с дочерними точками спавна и шаблоном врага `Enemy` рядом с ними — тогда `duplicate()` создаёт копию врага и ставит её в точку спавна.',
       versionNote:
-        'В Godot 4 группы можно задавать и через тег в имени узла (с префиксом %%), но обычные группы понятнее.',
+        'В Godot 4 теги в именах узлов (Node.tags) удалены — остались обычные группы и %-уникальные имена.',
     },
   ],
   tasks: [
@@ -455,12 +463,12 @@ func _try_spawn() -> void:
     },
     {
       title: 'Система групп — официальный туториал',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/scripting/scene_groups.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/scripting/groups.html',
       kind: 'docs',
     },
     {
       title: 'Руководство по стилю кода Godot',
-      url: 'https://docs.godotengine.org/en/stable/contributing/development_process/code_style.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html',
       kind: 'docs',
       note: 'Прочитайте до рефакторинга — там описаны именование, порядок функций и отступы.',
     },

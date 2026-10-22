@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { ChevronRight, Clock, Layers } from 'lucide-react'
 import type { LadderItem } from '@/content/types'
 import { Badge } from '@/components/ui/badge'
@@ -24,7 +24,7 @@ export function ProjectLadder({ items, hrefForStage, className }: ProjectLadderP
             <div className="flex shrink-0 items-center gap-3 sm:w-40 sm:flex-col sm:items-start">
               <span
                 aria-hidden="true"
-                className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/12 font-mono text-small font-semibold text-primary"
+                className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 font-mono text-small font-semibold text-primary"
               >
                 {item.level}
               </span>
@@ -53,7 +53,7 @@ export function ProjectLadder({ items, hrefForStage, className }: ProjectLadderP
                   <Layers aria-hidden="true" className="h-3.5 w-3.5" />
                   <Link
                     to={hrefForStage(item.fromStage)}
-                    className="rounded-sm font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="inline-flex min-h-11 items-center rounded-sm font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     этап {item.fromStage}
                   </Link>

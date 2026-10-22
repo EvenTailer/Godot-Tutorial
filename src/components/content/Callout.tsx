@@ -1,4 +1,4 @@
-import * as React from 'react'
+﻿import * as React from 'react'
 import { AlertTriangle, Info, Lightbulb, ShieldAlert } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -13,10 +13,10 @@ const variants: Record<
   CalloutVariant,
   { icon: React.ComponentType<{ className?: string }>; className: string; label: string }
 > = {
-  info: { icon: Info, className: 'border-info/40 bg-info/8', label: 'Заметка' },
-  tip: { icon: Lightbulb, className: 'border-success/40 bg-success/8', label: 'Совет' },
+  info: { icon: Info, className: 'border-info/40 bg-info/10', label: 'Заметка' },
+  tip: { icon: Lightbulb, className: 'border-success/40 bg-success/10', label: 'Совет' },
   warning: { icon: AlertTriangle, className: 'border-warning/45 bg-warning/10', label: 'Осторожно' },
-  danger: { icon: ShieldAlert, className: 'border-destructive/45 bg-destructive/8', label: 'Ловушка' },
+  danger: { icon: ShieldAlert, className: 'border-destructive/45 bg-destructive/10', label: 'Ловушка' },
 }
 
 /** Врезка с важным замечанием. Используется, чтобы текст не превращался в стену. */

@@ -157,7 +157,7 @@ export const cheatSheets: CheatSheet[] = [
         title: 'Данные и логика',
         rows: [
           { left: 'Данные, сохраняемые в файл', right: 'Resource (.tres)' },
-          { left: 'Глобальный сервис', right: 'Автолоад (Project Settings → Autoload)' },
+          { left: 'Глобальный сервис', right: 'Автолоад (Project → Project Settings → Autoload)' },
           { left: 'Общий доступ к узлам', right: 'Группа (Group)' },
           { left: 'Быстрый доступ к узлу', right: '%UniqueName или @onready' },
         ],
@@ -166,59 +166,10 @@ export const cheatSheets: CheatSheet[] = [
   },
   {
     id: 'errors',
-    title: 'Частые ошибки',
-    summary: 'Сообщение об ошибке → что оно значит → что делать. Ошибки Godot описаны очень точно.',
+    title: 'Ловушки и разборы',
+    summary:
+      'Неочевидное поведение GDScript и типичные ошибки мышления. Сообщения движка разобраны отдельно — в справочнике ошибок.',
     groups: [
-      {
-        title: 'Ошибки времени выполнения',
-        rows: [
-          {
-            left: "Invalid get index 'X' (on base: 'Nil')",
-            right: 'Обращение к узлу, которого нет. Проверьте has_node() и момент вызова',
-          },
-          {
-            left: "Invalid call. Nonexistent function 'X' in base 'Nil'",
-            right: 'Вызвали метод у несуществующего объекта — сначала null-проверка',
-          },
-          {
-            left: "Signal 'X' not found in base 'Y'",
-            right: 'Имя сигнала отличается от объявленного (регистр важен)',
-          },
-          {
-            left: "Invalid set index 'X' (on base: 'Y') with value of type 'Z'",
-            right: 'Тип значения не совпадает с типом свойства',
-          },
-        ],
-      },
-      {
-        title: 'Ошибки компиляции (Parse Error)',
-        rows: [
-          {
-            left: 'Expected end of statement after expression',
-            right: 'Забыли двоеточие после if / for / func',
-          },
-          {
-            left: 'Unexpected indent',
-            right: 'Лишний отступ или смешение табов и пробелов',
-          },
-          {
-            left: "Identifier 'X' not declared in the current scope",
-            right: 'Опечатка или не создан class_name',
-          },
-          {
-            left: "Cannot infer the type of 'X' variable",
-            right: 'Значение Variant — укажите тип явно или приведите значение',
-          },
-          {
-            left: "Class 'X' hides a global script class",
-            right: 'Два скрипта с одинаковым class_name',
-          },
-          {
-            left: 'Preload file "res://..." does not exist',
-            right: 'Неверный путь или файл ещё не сохранён',
-          },
-        ],
-      },
       {
         title: 'Логические ловушки',
         rows: [
@@ -257,7 +208,7 @@ export const cheatSheets: CheatSheet[] = [
   {
     id: 'shortcuts',
     title: 'Хоткеи редактора',
-    summary: 'Горячие клавиши Godot 4 по умолчанию. Любую можно переназначить в Editor Settings → Shortcuts.',
+    summary: 'Горячие клавиши Godot 4 по умолчанию. Любую можно переназначить в Editor → Editor Settings → Shortcuts.',
     groups: [
       {
         title: 'Запуск и сохранение',

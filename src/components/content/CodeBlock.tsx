@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, Download } from 'lucide-react'
 import { highlight, type TokenKind } from '@/lib/highlight'
+import { downloadText, filenameForExample } from '@/lib/download'
 import { cn } from '@/lib/utils'
 
 export interface CodeBlockProps {
@@ -42,14 +43,42 @@ export function CodeBlock({
   showLineNumbers = false,
 }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false)
+  const [downloaded, setDownloaded] = React.useState(false)
   const lines = React.useMemo(() => highlight(code, language), [code, language])
+  const copyTimer = React.useRef<number | undefined>(undefined)
+  const downloadTimer = React.useRef<number | undefined>(undefined)
+
+  // Таймеры снимаются при размонтировании: иначе setState после ухода со
+  // страницы и накопление таймеров при быстрых кликах.
+  React.useEffect(
+    () => () => {
+      window.clearTimeout(copyTimer.current)
+      window.clearTimeout(downloadTimer.current)
+    },
+    [],
+  )
 
   const copy = async () => {
     const ok = await copyToClipboard(code)
     if (ok) {
       setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
+      window.clearTimeout(copyTimer.current)
+      copyTimer.current = window.setTimeout(() => setCopied(false), 2000)
     }
+  }
+
+  const filename = React.useMemo(
+    () => filenameForExample(file, title ?? 'example', language),
+    [file, title, language],
+  )
+
+  const fileId = React.useId()
+
+  const download = () => {
+    downloadText(filename, code)
+    setDownloaded(true)
+    window.clearTimeout(downloadTimer.current)
+    downloadTimer.current = window.setTimeout(() => setDownloaded(false), 2000)
   }
 
   return (
@@ -59,29 +88,53 @@ export function CodeBlock({
         className,
       )}
     >
-      <figcaption className="flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-2">
+      <figcaption className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-border bg-card px-3 py-2 sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
           {file ? (
-            <span className="truncate font-mono text-tiny text-muted-foreground">{file}</span>
+            <span id={fileId} className="truncate font-mono text-tiny text-muted-foreground">
+              {file}
+            </span>
           ) : null}
           {title ? (
             <span className="truncate text-tiny font-medium text-foreground">{title}</span>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={copy}
-          aria-label={copied ? 'Код скопирован' : 'Скопировать код в буфер обмена'}
-          className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 text-tiny font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-          {copied ? (
-            <Check aria-hidden="true" className="h-3.5 w-3.5 text-success" />
-          ) : (
-            <Copy aria-hidden="true" className="h-3.5 w-3.5" />
-          )}
-          {copied ? 'Скопировано' : 'Копировать'}
-        </button>
+
+        <div className="flex shrink-0 items-center gap-1 print:hidden">
+          <button
+            type="button"
+            onClick={download}
+            aria-label={`Скачать файл ${filename}`}
+            aria-describedby={file ? fileId : undefined}
+            title={`Скачать ${filename}`}
+            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 text-tiny font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            {downloaded ? (
+              <Check aria-hidden="true" className="h-3.5 w-3.5 text-success" />
+            ) : (
+              <Download aria-hidden="true" className="h-3.5 w-3.5" />
+            )}
+            <span className="hidden sm:inline">{downloaded ? 'Скачано' : 'Скачать'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={copy}
+            aria-label={copied ? 'Код скопирован' : 'Скопировать код в буфер обмена'}
+            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 text-tiny font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            {copied ? (
+              <Check aria-hidden="true" className="h-3.5 w-3.5 text-success" />
+            ) : (
+              <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+            )}
+            <span className="hidden sm:inline">{copied ? 'Скопировано' : 'Копировать'}</span>
+          </button>
+        </div>
       </figcaption>
+
+      <p aria-live="polite" className="sr-only">
+        {downloaded ? `Файл ${filename} скачан` : ''}
+      </p>
 
       <div className="scroll-x">
         <pre className="min-w-full p-4 text-tiny leading-relaxed">

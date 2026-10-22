@@ -1,13 +1,17 @@
 import { Link } from 'react-router-dom'
 import { plan24Weeks, planTotalHours } from '@/content/plan-24-weeks'
-import { stages } from '@/content/stages'
+import { stageManifestById } from '@/content/stages/manifest'
 import { Badge } from '@/components/ui/badge'
 import { Callout } from '@/components/content/Callout'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
-
-const stageById = new Map(stages.map((stage) => [stage.id, stage]))
+import { usePageMeta } from '@/hooks/usePageMeta'
 
 export function PlanPage() {
+  usePageMeta(
+    'План на 24 недели',
+    'Календарный план обучения Godot 4: что делать каждую неделю, сколько это занимает и какой результат должен получиться.',
+  )
+
   return (
     <div className="mx-auto max-w-content px-gutter py-section">
       <PageHeader
@@ -28,7 +32,12 @@ export function PlanPage() {
       </Callout>
 
       <Section title="Недели" className="mt-section">
-        <div className="scroll-x rounded-lg border border-border">
+        <div
+          className="scroll-x rounded-lg border border-border"
+          tabIndex={0}
+          role="region"
+          aria-label="Календарный план на 24 недели — прокрутите вбок, чтобы увидеть все колонки"
+        >
           <table className="w-full min-w-[46rem] border-collapse text-left text-small">
             <caption className="sr-only">Календарный план обучения на 24 недели</caption>
             <thead>
@@ -63,15 +72,18 @@ export function PlanPage() {
                   <td className="px-4 py-3 align-top">
                     <div className="flex flex-wrap gap-1">
                       {week.stages.map((stageId) => {
-                        const stage = stageById.get(stageId)
+                        const stage = stageManifestById.get(stageId)
                         if (!stage) return null
                         return (
                           <Link
                             key={stageId}
                             to={`/stage/${stage.slug}`}
-                            className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                            className="inline-flex min-h-11 items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                           >
                             <Badge variant="outline">{stageId}</Badge>
+                            <span className="sr-only">
+                              Этап {stage.number}: {stage.title}
+                            </span>
                           </Link>
                         )
                       })}
@@ -92,7 +104,7 @@ export function PlanPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <PlanCard
             title="4 часа в неделю"
-            text="Курс растянется примерно на 45–50 недель. Это нормально: скорость важнее дедлайна."
+            text="Курс растянется примерно на 58 недель. Это нормально: скорость важнее дедлайна."
           />
           <PlanCard
             title="Два вечера по 3 часа"

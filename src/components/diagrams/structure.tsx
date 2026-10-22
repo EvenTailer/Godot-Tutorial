@@ -218,7 +218,7 @@ export function RefactorArchitectureDiagram() {
             textAnchor="middle"
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.muted}
+            style={{ fill: diagramColor.muted }}
           >
             движение
           </text>
@@ -228,7 +228,7 @@ export function RefactorArchitectureDiagram() {
             textAnchor="middle"
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.muted}
+            style={{ fill: diagramColor.muted }}
           >
             анимация
           </text>
@@ -238,7 +238,7 @@ export function RefactorArchitectureDiagram() {
             textAnchor="middle"
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.muted}
+            style={{ fill: diagramColor.muted }}
           >
             здоровье
           </text>
@@ -248,7 +248,7 @@ export function RefactorArchitectureDiagram() {
             textAnchor="middle"
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.muted}
+            style={{ fill: diagramColor.muted }}
           >
             звук
           </text>
@@ -258,7 +258,7 @@ export function RefactorArchitectureDiagram() {
             textAnchor="middle"
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.muted}
+            style={{ fill: diagramColor.muted }}
           >
             счёт
           </text>

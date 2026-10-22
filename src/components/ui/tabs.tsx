@@ -5,6 +5,8 @@ export interface TabItem {
   id: string
   label: React.ReactNode
   content: React.ReactNode
+  /** Якорь панели: по нему можно попасть на вкладку ссылкой. */
+  anchorId?: string
 }
 
 export interface TabsProps {
@@ -50,6 +52,9 @@ export function Tabs({ items, value, defaultValue, onValueChange, className, lab
   }
 
   const active = items.find((item) => item.id === current) ?? items[0]
+  // id панели один и тот же для aria-controls и для самого элемента:
+  // иначе ссылка ведёт в никуда.
+  const panelId = active ? (active.anchorId ?? `panel-${active.id}`) : ''
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
@@ -68,7 +73,9 @@ export function Tabs({ items, value, defaultValue, onValueChange, className, lab
               role="tab"
               id={`tab-${item.id}`}
               aria-selected={isActive}
-              aria-controls={`panel-${item.id}`}
+              // Панель рендерится только у активной вкладки — у остальных
+              // ссылка была бы битой.
+              aria-controls={isActive ? panelId : undefined}
               tabIndex={isActive ? 0 : -1}
               onClick={() => select(item.id)}
               onKeyDown={onKeyDown}
@@ -88,7 +95,7 @@ export function Tabs({ items, value, defaultValue, onValueChange, className, lab
       {active ? (
         <div
           role="tabpanel"
-          id={`panel-${active.id}`}
+          id={panelId}
           aria-labelledby={`tab-${active.id}`}
           tabIndex={0}
           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"

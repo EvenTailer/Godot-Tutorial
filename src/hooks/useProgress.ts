@@ -1,9 +1,9 @@
+import * as React from 'react'
 import { useCallback, useSyncExternalStore } from 'react'
 import {
   getSnapshot,
   isDone,
   progressKey,
-  readProgress,
   setDone,
   subscribe,
   type ProgressKind,
@@ -15,7 +15,13 @@ import {
  */
 export function useProgress() {
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
-  const done = useCallback(() => new Set(snapshot ? snapshot.split('|') : []), [snapshot])
+
+  // Set мемоизируется: иначе каждый рендер создавал бы новый объект
+  // и все useMemo по нему пересчитывались бы заново.
+  const doneSet = React.useMemo(
+    () => new Set(snapshot ? snapshot.split('|') : []),
+    [snapshot],
+  )
 
   const toggle = useCallback((stageId: string, itemId: string, kind: ProgressKind) => {
     const key = progressKey(stageId, itemId, kind)
@@ -28,10 +34,10 @@ export function useProgress() {
 
   const is = useCallback(
     (stageId: string, itemId: string, kind: ProgressKind) => {
-      return done().has(progressKey(stageId, itemId, kind))
+      return doneSet.has(progressKey(stageId, itemId, kind))
     },
-    [done],
+    [doneSet],
   )
 
-  return { doneSet: done(), toggle, mark, is, readProgress }
+  return { doneSet, toggle, mark, is }
 }

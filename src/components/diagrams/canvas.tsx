@@ -24,7 +24,8 @@ export function DiagramSvg({ viewBox, children, title, desc, className }: Diagra
     <svg
       viewBox={viewBox}
       role="img"
-      aria-labelledby={`${markerId}-title ${markerId}-desc`}
+      // Ссылка только на существующие элементы: без desc второй id был бы битым.
+      aria-labelledby={desc ? `${markerId}-title ${markerId}-desc` : `${markerId}-title`}
       className={className}
       preserveAspectRatio="xMidYMid meet"
     >

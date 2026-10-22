@@ -107,19 +107,26 @@ export default {
         md: 'var(--shadow-md)',
         lg: 'var(--shadow-lg)',
         focus: 'var(--shadow-focus)',
+        'card-hover': 'var(--shadow-card-hover)',
+        brand: 'var(--brand-glow)',
+      },
+      backgroundImage: {
+        brand: 'var(--brand-gradient)',
+        'brand-soft': 'var(--brand-gradient-soft)',
       },
       keyframes: {
         'fade-in': {
           from: { opacity: '0', transform: 'translateY(4px)' },
           to: { opacity: '1', transform: 'none' },
         },
-        'ring-draw': {
-          from: { strokeDashoffset: 'var(--ring-len, 200)' },
-          to: { strokeDashoffset: '0' },
+        aurora: {
+          '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+          '50%': { transform: 'translate3d(4%, -3%, 0) scale(1.08)' },
         },
       },
       animation: {
         'fade-in': 'fade-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        aurora: 'aurora 22s ease-in-out infinite',
       },
       transitionTimingFunction: {
         standard: 'cubic-bezier(0.22, 1, 0.36, 1)',

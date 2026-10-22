@@ -13,7 +13,7 @@ import { stage10 } from './stage-10-shaders-performance'
 import { stage11 } from './stage-11-release-publishing'
 import { stage12 } from './stage-12-final-project'
 
-/** Все 12 этапов в порядке прохождения. */
+/** Все 13 этапов в порядке прохождения. */
 export const stages: Stage[] = [
   stage00,
   stage01,
@@ -34,24 +34,6 @@ export const stageById = new Map(stages.map((stage) => [stage.id, stage]))
 
 export function findStage(slug: string): Stage | undefined {
   return stages.find((stage) => stage.slug === slug)
-}
-
-export function findStageById(id: string): Stage | undefined {
-  return stageById.get(id)
-}
-
-/** Общее количество «отмечаемых» пунктов — основа для кольца прогресса. */
-export function countProgressItems(stagesList: Stage[] = stages): number {
-  return stagesList.reduce((total, stage) => {
-    return (
-      total +
-      stage.topics.length +
-      stage.steps.length +
-      stage.tasks.length +
-      stage.criteria.length +
-      1 // мини-проект этапа
-    )
-  }, 0)
 }
 
 /** Суммарная оценка времени по всем этапам, в часах. */

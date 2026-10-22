@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom'
 import { glossary } from '@/content/glossary'
-import { stages } from '@/content/stages'
+import { stageManifestById } from '@/content/stages/manifest'
 import { Badge } from '@/components/ui/badge'
 import { PageHeader } from '@/components/layout/PageHeader'
-
-const stageById = new Map(stages.map((stage) => [stage.id, stage]))
+import { usePageMeta } from '@/hooks/usePageMeta'
 
 export function GlossaryPage() {
+  usePageMeta(
+    'Глоссарий терминов Godot',
+    'Термины Godot 4 с переводом, объяснением и ссылкой на этап курса, где тема разбирается.',
+  )
+
   return (
     <div className="mx-auto max-w-content px-gutter py-section">
       <PageHeader
@@ -17,7 +21,7 @@ export function GlossaryPage() {
 
       <div className="mt-8 grid gap-3 md:grid-cols-2">
         {glossary.map((entry) => {
-          const stage = stageById.get(entry.stageId)
+          const stage = stageManifestById.get(entry.stageId)
           return (
             <article
               key={entry.id}
@@ -32,7 +36,7 @@ export function GlossaryPage() {
               {stage ? (
                 <Link
                   to={`/stage/${stage.slug}`}
-                  className="mt-3 inline-flex min-h-9 items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="mt-3 inline-flex min-h-11 items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <Badge variant="outline">этап {stage.number} · {stage.shortTitle}</Badge>
                 </Link>

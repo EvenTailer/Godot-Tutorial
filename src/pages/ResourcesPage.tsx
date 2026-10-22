@@ -3,8 +3,14 @@ import { resourceGroups } from '@/content/resources'
 import { ResourceList } from '@/components/content/ResourceList'
 import { Badge } from '@/components/ui/badge'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
+import { usePageMeta } from '@/hooks/usePageMeta'
 
 export function ResourcesPage() {
+  usePageMeta(
+    'Ресурсы по Godot',
+    'Официальная документация, ассеты, инструменты и сообщество Godot — что открыть в первую очередь.',
+  )
+
   return (
     <div className="mx-auto max-w-content px-gutter py-section">
       <PageHeader

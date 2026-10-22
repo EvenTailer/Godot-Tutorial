@@ -1,11 +1,14 @@
+import * as React from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CalendarDays, Clock, Target } from 'lucide-react'
-import { findStage, stages } from '@/content/stages'
+import { ArrowLeft, ArrowRight, CalendarDays, Clock, Download, Target } from 'lucide-react'
+import type { Stage } from '@/content/types'
+import { stageManifest, stageManifestBySlug } from '@/content/stages/manifest'
 import { CodeBlock } from '@/components/content/CodeBlock'
 import { Callout } from '@/components/content/Callout'
 import { CriteriaList, TaskList } from '@/components/content/TaskList'
 import { Diagram } from '@/components/content/Diagram'
 import { ResourceList } from '@/components/content/ResourceList'
+import { StageToc, type TocSection } from '@/components/content/StageToc'
 import { StepList } from '@/components/content/StepList'
 import { TopicList } from '@/components/content/TopicList'
 import { Badge } from '@/components/ui/badge'
@@ -13,24 +16,98 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
 import { Section } from '@/components/layout/PageHeader'
+import { usePageMeta } from '@/hooks/usePageMeta'
 import { useProgress } from '@/hooks/useProgress'
 import { useStageProgress } from '@/hooks/useStageProgress'
+import { buildStageNotes, downloadText } from '@/lib/download'
+
+/**
+ * Тела этапов — отдельными ленивыми чанками.
+ *
+ * Корпус курса не едет вместе с каждой страницей: открыли этап — приехал
+ * только он (≈8 KB вместо ≈104 KB на весь курс).
+ */
+const stageModules = import.meta.glob('../content/stages/stage-*.ts')
+
+/** Разделы страницы этапа — для оглавления. */
+function tocFor(stage: Stage | null): TocSection[] {
+  if (!stage) return []
+  const sections: TocSection[] = [
+    { id: 'topics', label: 'Темы этапа' },
+    { id: 'steps', label: 'Пошаговые инструкции' },
+    { id: 'code', label: 'Код' },
+    { id: 'tasks', label: 'Практика' },
+    { id: 'mini-project', label: 'Мини-проект' },
+    { id: 'criteria', label: 'Знаю тему' },
+  ]
+  if (stage.diagrams.length > 0) sections.push({ id: 'diagrams', label: 'Схемы этапа' })
+  sections.push({ id: 'resources', label: 'Ресурсы' })
+  if (stage.versionNotes.length > 0) sections.push({ id: 'versions', label: 'Версии' })
+  return sections
+}
+
+/** Заглушка на время загрузки тела этапа. */
+function StagePlaceholder() {
+  return (
+    <div className="mx-auto max-w-content px-gutter py-section" aria-busy="true" aria-live="polite">
+      <p className="text-small text-muted-foreground">Загружаем этап…</p>
+      <div className="mt-6 flex flex-col gap-3">
+        <div className="h-8 w-2/3 rounded-md bg-muted" />
+        <div className="h-4 w-full rounded-md bg-muted" />
+        <div className="h-4 w-5/6 rounded-md bg-muted" />
+        <div className="mt-4 h-40 w-full rounded-lg bg-muted" />
+      </div>
+    </div>
+  )
+}
 
 export function StagePage() {
   const { slug } = useParams<{ slug: string }>()
-  const stage = slug ? findStage(slug) : undefined
+  const entry = slug ? stageManifestBySlug.get(slug) : undefined
   const { is, toggle, mark } = useProgress()
   const { countFor } = useStageProgress()
+  const [stage, setStage] = React.useState<Stage | null>(null)
 
-  if (!stage) return <Navigate to="/404" replace />
+  // Тело этапа приезжает отдельным ленивым чанком.
+  React.useEffect(() => {
+    if (!entry) return
+    let alive = true
+    const loader = stageModules[`../content/stages/${entry.file}`]
+    if (!loader) return
+    loader().then((module: unknown) => {
+      const values = Object.values(module as Record<string, unknown>)
+      const loaded = values[0] as Stage | undefined
+      if (alive) setStage(loaded ?? null)
+    })
+    return () => {
+      alive = false
+    }
+  }, [entry])
 
-  const index = stages.findIndex((item) => item.slug === stage.slug)
-  const previous = index > 0 ? stages[index - 1] : null
-  const next = index < stages.length - 1 ? stages[index + 1] : null
-  const counts = countFor(stage)
+  // Хуки вызываются до раннего выхода: иначе при смене slug их число
+  // меняется и React падает с «Rendered fewer hooks than expected».
+  const tocSections = React.useMemo(() => tocFor(stage), [stage])
+  const description = React.useMemo(
+    () =>
+      entry
+        ? `Этап ${entry.number}: ${entry.subtitle} ${entry.hours} ч, ${entry.counts.topics} тем, ${entry.counts.code} примеров кода.`
+        : undefined,
+    [entry],
+  )
+
+  usePageMeta(entry ? entry.title : 'Этап курса', description)
+
+  if (!entry) return <Navigate to="/404" replace />
+  if (!stage) return <StagePlaceholder />
+
+  const index = stageManifest.findIndex((item) => item.slug === stage.slug)
+  const previous = index > 0 ? stageManifest[index - 1] : null
+  const next = index < stageManifest.length - 1 ? stageManifest[index + 1] : null
+  const counts = countFor(entry)
 
   return (
-    <article className="mx-auto max-w-content px-gutter py-section">
+    <div className="stage-layout mx-auto max-w-content px-gutter py-section lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10">
+      <article className="min-w-0">
       {/* Заголовок этапа */}
       <header className="border-b border-border pb-8">
         <nav aria-label="Хлебные крошки" className="mb-4">
@@ -89,10 +166,18 @@ export function StagePage() {
         </div>
       </header>
 
+      <StageToc
+        sections={tocSections}
+        variant="inline"
+        progress={counts}
+        className="mb-6 lg:hidden"
+      />
+
       <div className="flex flex-col gap-section pt-section">
         {/* Темы */}
         <Section
           title="Темы этапа"
+          id="topics"
           description="Для каждой темы объяснено, что это и зачем это нужно. Отметьте тему, когда она станет понятна."
         >
           <TopicList
@@ -106,6 +191,7 @@ export function StagePage() {
         {/* Шаги */}
         <Section
           title="Пошаговые инструкции"
+          id="steps"
           description="Названия пунктов меню — настоящие, из редактора Godot 4. Пока вы не сделаете шаг, переходите к следующему."
         >
           <StepList
@@ -119,8 +205,29 @@ export function StagePage() {
         {/* Код */}
         <Section
           title="Код"
+          id="code"
           description="Примеры копируются в один клик и проверяются настоящим движком: каждый файл разбирается Godot без ошибок."
         >
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-small text-muted-foreground">
+              {stage.code.length} примеров — каждый можно скачать отдельным файлом или забрать
+              одним markdown-документом.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                downloadText(
+                  `stage-${stage.id}-examples.md`,
+                  buildStageNotes(stage.title, stage.code),
+                  'text/markdown;charset=utf-8',
+                )
+              }
+            >
+              <Download aria-hidden="true" />
+              Скачать все примеры (.md)
+            </Button>
+          </div>
           {stage.code.map((example) => (
             <section key={example.id} id={`code-${example.id}`} className="scroll-mt-24">
               <h3 className="mb-2 text-h3 font-semibold">{example.title}</h3>
@@ -144,6 +251,7 @@ export function StagePage() {
         {/* Практика */}
         <Section
           title="Практика"
+          id="tasks"
           description="Задания с возрастающей сложностью. Подсказка спрятана под «Подсказка» — сначала попробуйте сами."
         >
           <TaskList
@@ -157,6 +265,7 @@ export function StagePage() {
         {/* Мини-проект */}
         <Section
           title="Мини-проект"
+          id="mini-project"
           description="Главный результат этапа. Он должен работать — иначе этап не закрыт."
         >
           <div className="rounded-lg border border-border bg-card p-5 shadow-xs">
@@ -211,6 +320,7 @@ export function StagePage() {
         {/* Критерий */}
         <Section
           title="Знаю тему"
+          id="criteria"
           description="Самопроверка. Каждый критерий — действие: если его можно выполнить, значит тема действительно понята."
         >
           <CriteriaList
@@ -223,7 +333,7 @@ export function StagePage() {
 
         {/* Диаграммы этапа */}
         {stage.diagrams.length > 0 ? (
-          <Section title="Схемы этапа" description="Одна и та же палитра и стиль: сплошная стрелка — поток управления, пунктир — слабая связь.">
+          <Section title="Схемы этапа" id="diagrams" description="Одна и та же палитра и стиль: сплошная стрелка — поток управления, пунктир — слабая связь.">
             {stage.diagrams.map((id) => (
               <Diagram key={id} id={id} />
             ))}
@@ -231,13 +341,13 @@ export function StagePage() {
         ) : null}
 
         {/* Ресурсы */}
-        <Section title="Ресурсы" description="Официальная документация — источник истины по API. Остальное — для контекста.">
+        <Section title="Ресурсы" id="resources" description="Официальная документация — источник истины по API. Остальное — для контекста.">
           <ResourceList resources={stage.resources} />
         </Section>
 
         {/* Версии */}
         {stage.versionNotes.length > 0 ? (
-          <Section title="Изменения между версиями" description="Отмечено только там, где API или поведение отличаются в Godot 4.0–4.4.">
+          <Section title="Изменения между версиями" id="versions" description="Отмечено только там, где API или поведение отличаются в Godot 4.0–4.7.">
             <ul className="flex flex-col gap-2">
               {stage.versionNotes.map((note) => (
                 <li
@@ -298,14 +408,21 @@ export function StagePage() {
 
       <p className="mt-6 text-tiny text-muted-foreground">
         Отметки сохраняются в этом браузере.{' '}
-        <button
-          type="button"
-          onClick={() => mark(stage.id, 'project', 'project', !is(stage.id, 'project', 'project'))}
-          className="inline-flex min-h-11 items-center rounded-sm underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          Сбросить отметку мини-проекта
-        </button>
+        {is(stage.id, 'project', 'project') ? (
+          <button
+            type="button"
+            onClick={() => mark(stage.id, 'project', 'project', false)}
+            className="inline-flex min-h-11 items-center rounded-sm underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Сбросить отметку мини-проекта
+          </button>
+        ) : null}
       </p>
-    </article>
+      </article>
+
+      <aside className="hidden lg:block">
+        <StageToc sections={tocSections} progress={counts} />
+      </aside>
+    </div>
   )
 }

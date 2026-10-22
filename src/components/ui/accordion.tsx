@@ -10,6 +10,8 @@ export interface AccordionItemProps
   title: React.ReactNode
   /** Показывать плюс/минус вместо стрелки. */
   icon?: 'chevron' | 'plus'
+  /** Тег для заголовка: заголовок нужен и для навигации по разделам страницы. */
+  titleTag?: 'span' | 'h2' | 'h3'
 }
 
 /**
@@ -22,11 +24,13 @@ export interface AccordionItemProps
 export function AccordionItem({
   title,
   icon = 'chevron',
+  titleTag = 'span',
   className,
   children,
   ...props
 }: AccordionItemProps) {
   const Icon = icon === 'plus' ? null : ChevronRight
+  const TitleTag = titleTag
   return (
     <details
       className={cn(
@@ -42,7 +46,7 @@ export function AccordionItem({
           '[&::-webkit-details-marker]:hidden',
         )}
       >
-        <span>{title}</span>
+        <TitleTag className="text-h4 font-medium">{title}</TitleTag>
         {Icon ? (
           <Icon
             aria-hidden="true"
@@ -64,7 +68,6 @@ export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Открывать только один раздел за раз. */
   single?: boolean
 }
-
 export function Accordion({ className, single = false, children, ...props }: AccordionProps) {
   return (
     <div

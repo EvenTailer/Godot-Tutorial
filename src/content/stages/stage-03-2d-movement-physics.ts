@@ -77,10 +77,10 @@ export const stage03: Stage = {
         'Понимание гравитации как «скорость накапливается» объясняет, почему персонаж не может мгновенно остановиться в воздухе и почему двойной прыжок возможен, а мгновенный — нет.',
       details: [
         'Каждый кадр: velocity.y += gravity * delta.',
-        'Прыжок: velocity.y = jump_velocity (отрицательное значение — вверх).',
+        'Прыжок: velocity.y = -jump_velocity, где jump_velocity — положительное число (например, 480). В 2D «вверх» — это минус по Y.',
         'Отпускание кнопки поднимает прыжок: обрезайте velocity.y, если кнопка уже не нажата.',
         'У CharacterBody2D есть свойство up_direction — направление «вверх» (по умолчанию (0, -1)).',
-        'Для платформ, проходимых снизу, используйте one_way_collision у Area2D или отдельный слой.',
+        'Для платформ, проходимых снизу, используйте one_way_collision у CollisionShape2D (у Area2D такого свойства нет) или отдельный слой.',
       ],
       diagramRef: 'state-machine',
     },
@@ -175,7 +175,7 @@ export const stage03: Stage = {
       title: 'Враг с лучом',
       where: 'Сцена enemy.tscn',
       action:
-        'Добавьте к врагу узел RayCast2D, направьте его вниз (target_position = Vector2(0, 40)) и включите enabled. Если is_colliding() — враг продолжает идти, иначе разворачивается.',
+        'Добавьте к врагу два узла RayCast2D: GroundRay (смотрит вниз, target_position = Vector2(0, 40)) и WallRay (смотрит по направлению движения). Включите enabled у обоих. Если GroundRay не пересекается — впереди нет земли; если пересекается WallRay — впереди стена. В обоих случаях враг разворачивается.',
       result: 'Враг разворачивается у края платформы и не падает.',
       diagramRef: 'collision-layers',
     },
@@ -414,7 +414,7 @@ func _collect(who: Node2D) -> void:
   resources: [
     {
       title: 'Физика 2D — официальный туториал',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/physics/physics_2d.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/physics/using_character_body_2d.html',
       kind: 'docs',
     },
     {

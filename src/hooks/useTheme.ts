@@ -28,7 +28,12 @@ function applyTheme(theme: Theme) {
 
 /**
  * Тема оформления.
- * Значение хранится в localStorage; при его отсутствии берётся системная тема.
+ *
+ * Значение хранится в localStorage, но ТОЛЬКО если читатель выбрал тему
+ * сам. Иначе сайт следует системной теме: если сохранять её при первом
+ * рендере, ключ появляется в хранилище и системная тема перестаёт
+ * отслеживаться (нарушение D-011).
+ *
  * Инлайн-скрипт в index.html уже выставил класс до первой отрисовки —
  * здесь мы только синхронизируем состояние React с DOM.
  */
@@ -37,26 +42,36 @@ export function useTheme() {
 
   useEffect(() => {
     applyTheme(theme)
-    try {
-      window.localStorage.setItem(THEME_KEY, theme)
-    } catch {
-      /* квота исчерпана */
-    }
   }, [theme])
 
   useEffect(() => {
     const media = window.matchMedia(DARK_QUERY)
     const onChange = (event: MediaQueryListEvent) => {
+      // Реагируем на системную тему, только если читатель не выбирал свою.
       if (!readStoredTheme()) setThemeState(event.matches ? 'dark' : 'light')
     }
     media.addEventListener('change', onChange)
     return () => media.removeEventListener('change', onChange)
   }, [])
 
-  const setTheme = useCallback((next: Theme) => setThemeState(next), [])
+  const setTheme = useCallback((next: Theme) => {
+    setThemeState(next)
+    try {
+      window.localStorage.setItem(THEME_KEY, next)
+    } catch {
+      /* квота исчерпана */
+    }
+  }, [])
+
   const toggle = useCallback(() => {
     setThemeState((current) => (current === 'dark' ? 'light' : 'dark'))
-  }, [])
+    try {
+      const next = theme === 'dark' ? 'light' : 'dark'
+      window.localStorage.setItem(THEME_KEY, next)
+    } catch {
+      /* квота исчерпана */
+    }
+  }, [theme])
 
   return { theme, setTheme, toggle }
 }

@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Tabs, type TabItem } from '@/components/ui/tabs'
 import type { CheatSheet } from '@/content/types'
 import { cn } from '@/lib/utils'
@@ -7,20 +8,47 @@ export interface CheatSheetTabsProps {
   className?: string
 }
 
-/** Шпаргалки: вкладка на каждую тетрадку, внутри — таблица «что → как». */
+/**
+ * Шпаргалки: вкладка на каждую тетрадку, внутри — таблица «что → как».
+ *
+ * Активная вкладка живёт в адресе: ссылка /cheatsheets#errors открывает
+ * нужную тетрадку, поэтому на неё можно попасть из поиска.
+ */
 export function CheatSheetTabs({ sheets, className }: CheatSheetTabsProps) {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const hash = location.hash.replace(/^#/, '')
+  const activeId = sheets.some((sheet) => sheet.id === hash) ? hash : sheets[0]?.id
+
   const items: TabItem[] = sheets.map((sheet) => ({
     id: sheet.id,
+    anchorId: sheet.id,
     label: sheet.title,
     content: (
       <div className="flex flex-col gap-6">
         <p className="max-w-prose text-small text-muted-foreground">{sheet.summary}</p>
         {sheet.groups.map((group) => (
           <section key={group.title} id={group.title} className="scroll-mt-24">
-            <h3 className="mb-3 text-h3 font-semibold">{group.title}</h3>
-            <div className="overflow-hidden rounded-lg border border-border">
-              <table className="w-full border-collapse text-left text-small">
+            <h2 className="mb-3 text-h3 font-semibold">{group.title}</h2>
+            <div
+              className="scroll-x rounded-lg border border-border"
+              tabIndex={0}
+              role="region"
+              aria-label={`Таблица «${group.title}» — прокрутите вбок, чтобы увидеть всё`}
+            >
+              <table className="w-full min-w-[34rem] border-collapse text-left text-small">
                 <caption className="sr-only">{group.title}</caption>
+                <thead>
+                  <tr className="border-b border-border bg-muted/60">
+                    <th scope="col" className="px-4 py-2.5 font-medium">
+                      Что
+                    </th>
+                    <th scope="col" className="px-4 py-2.5 font-medium">
+                      Как
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
                   {group.rows.map((row, index) => (
                     <tr
@@ -51,6 +79,12 @@ export function CheatSheetTabs({ sheets, className }: CheatSheetTabsProps) {
   }))
 
   return (
-    <Tabs items={items} label="Шпаргалки" className={cn(className)} />
+    <Tabs
+      items={items}
+      value={activeId}
+      onValueChange={(id) => navigate(`/cheatsheets#${id}`)}
+      label="Шпаргалки"
+      className={cn(className)}
+    />
   )
 }

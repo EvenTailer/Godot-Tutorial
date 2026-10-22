@@ -2,6 +2,7 @@ import * as React from 'react'
 import { HashRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
 
 /**
  * Экраны загружаются по требованию: так первый экран остаётся лёгким,
@@ -26,23 +27,61 @@ const GlossaryPage = React.lazy(() =>
   import('@/pages/GlossaryPage').then((m) => ({ default: m.GlossaryPage })),
 )
 const FaqPage = React.lazy(() => import('@/pages/FaqPage').then((m) => ({ default: m.FaqPage })))
+const ErrorsPage = React.lazy(() =>
+  import('@/pages/ErrorsPage').then((m) => ({ default: m.ErrorsPage })),
+)
+const VersionsPage = React.lazy(() =>
+  import('@/pages/VersionsPage').then((m) => ({ default: m.VersionsPage })),
+)
 const NotFoundPage = React.lazy(() =>
   import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
 )
 
-/** Прокрутка наверх при смене маршрута. */
+/**
+ * Прокрутка наверх при смене маршрута.
+ *
+ * Если в адресе есть якорь, ждём его появления: страница этапа грузится
+ * ленивым чанком, и в момент смены маршрута нужного элемента ещё нет в DOM.
+ */
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
 
   React.useEffect(() => {
-    if (hash) {
-      const target = document.getElementById(hash.slice(1))
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: 'auto' })
+      return
+    }
+
+    const rawId = hash.slice(1)
+    let id = rawId
+    try {
+      id = decodeURIComponent(rawId)
+    } catch {
+      // Некорректная escape-последовательность: ищем как есть.
+      id = rawId
+    }
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let attempts = 0
+    let timer = 0
+
+    const scrollToTarget = () => {
+      const target = document.getElementById(id)
       if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+        window.clearTimeout(timer)
         return
       }
+      // Элемент ещё не отрисован — пробуем ещё (до 2 секунд).
+      if (attempts < 40) {
+        attempts += 1
+        timer = window.setTimeout(scrollToTarget, 50)
+      }
     }
-    window.scrollTo({ top: 0, behavior: 'auto' })
+
+    scrollToTarget()
+    return () => window.clearTimeout(timer)
   }, [pathname, hash])
 
   return null
@@ -64,13 +103,43 @@ function PageFallback() {
 export function App() {
   return (
     <HashRouter>
-      <ScrollToTop />
-      <div className="flex min-h-screen flex-col">
-        <a href="#main" className="skip-link">
-          Перейти к содержимому
-        </a>
-        <SiteHeader />
-        <main id="main" className="flex-1">
+      {/* Внешняя граница ловит ошибки вне main (например, в ScrollToTop):
+          без неё такое исключение оставило бы весь экран пустым. */}
+      <ErrorBoundary>
+        <ScrollToTop />
+        <AppShell />
+      </ErrorBoundary>
+    </HashRouter>
+  )
+}
+
+/**
+ * Оболочка приложения.
+ *
+ * Граница ошибок пересоздаётся при смене маршрута (key по pathname):
+ * иначе после сбоя на одной странице весь сайт остался бы в экране ошибки.
+ */
+function AppShell() {
+  const location = useLocation()
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <a
+        href="#main"
+        className="skip-link"
+        // В HashRouter обычный якорь ломает маршрут, поэтому переход делаем вручную.
+        onClick={(event) => {
+          event.preventDefault()
+          const main = document.getElementById('main')
+          main?.scrollIntoView({ behavior: 'auto' })
+          main?.focus()
+        }}
+      >
+        Перейти к содержимому
+      </a>
+      <SiteHeader />
+      <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+        <ErrorBoundary key={location.pathname}>
           <React.Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
@@ -82,12 +151,14 @@ export function App() {
               <Route path="/resources" element={<ResourcesPage />} />
               <Route path="/glossary" element={<GlossaryPage />} />
               <Route path="/faq" element={<FaqPage />} />
+              <Route path="/errors" element={<ErrorsPage />} />
+              <Route path="/versions" element={<VersionsPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </React.Suspense>
-        </main>
-        <SiteFooter />
-      </div>
-    </HashRouter>
+        </ErrorBoundary>
+      </main>
+      <SiteFooter />
+    </div>
   )
 }

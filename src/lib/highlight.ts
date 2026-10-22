@@ -285,12 +285,19 @@ const OPERATORS = new Set([
   '..',
 ])
 
+// Регулярные выражения вынесены в константы: литерал в коде создаёт
+// новый объект RegExp на каждый вызов, а токенизация идёт по символам.
+const RE_WORD_START = /[A-Za-z_]/
+const RE_WORD_PART = /[A-Za-z0-9_]/
+const RE_DIGIT = /[0-9]/
+const RE_NUMBER_PART = /[0-9._]/
+
 function isWordStart(ch: string) {
-  return /[A-Za-z_]/.test(ch)
+  return RE_WORD_START.test(ch)
 }
 
 function isWordPart(ch: string) {
-  return /[A-Za-z0-9_]/.test(ch)
+  return RE_WORD_PART.test(ch)
 }
 
 function pushWord(text: string, kind: TokenKind, out: Token[]) {
@@ -342,9 +349,9 @@ function tokenizeGdscriptLine(line: string): Token[] {
     }
 
     // Числа
-    if (/[0-9]/.test(ch) || (ch === '.' && /[0-9]/.test(line[i + 1] ?? ''))) {
+    if (RE_DIGIT.test(ch) || (ch === '.' && RE_DIGIT.test(line[i + 1] ?? ''))) {
       let j = i
-      while (j < line.length && /[0-9._]/.test(line[j])) j += 1
+      while (j < line.length && RE_NUMBER_PART.test(line[j])) j += 1
       pushWord(line.slice(i, j), 'number', out)
       i = j
       continue
@@ -363,14 +370,19 @@ function tokenizeGdscriptLine(line: string): Token[] {
       continue
     }
 
-    // Операторы
+    // Операторы: сначала двухсимвольные (&&, ||, +=), потом односимвольные.
+    // Раньше пара проверялась только внутри ветки «одного символа», а одиночные
+    // & и | в набор не входят — и самые частые операторы GDScript
+    // подсвечивались как обычный текст.
+    const two = line.slice(i, i + 2)
+    if (OPERATORS.has(two)) {
+      pushWord(two, 'operator', out)
+      i += 2
+      continue
+    }
     if (OPERATORS.has(ch)) {
-      let j = i
-      const two = line.slice(i, i + 2)
-      if (OPERATORS.has(two)) j = i + 2
-      else j = i + 1
-      pushWord(line.slice(i, j), 'operator', out)
-      i = j
+      pushWord(ch, 'operator', out)
+      i += 1
       continue
     }
 

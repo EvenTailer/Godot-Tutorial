@@ -80,7 +80,7 @@ export const stage09: Stage = {
         'Создайте ресурс StandardMaterial3D и переиспользуйте его: перетащите в поле Material нескольких узлов.',
         'roughness 0 — зеркало, 1 — матовое. metallic 1 — металл.',
         'emission + emission_energy — собственное свечение, не зависит от света.',
-        'Для «мультяшного» вида есть preset Toon (есть в 4.x как отдельный шейдерный материал).',
+        'Для «мультяшного» вида у StandardMaterial3D есть режимы Toon: Diffuse Mode → Toon и Specular Mode → Toon. Это значения в выпадающих списках материала, а не отдельный пресет.',
         'Стандартный материал физически-корректный: без HDR-окружения металл будет чёрным.',
       ],
     },
@@ -134,7 +134,7 @@ export const stage09: Stage = {
       title: 'Собрать пол и стены',
       where: 'Add Child Node → MeshInstance3D',
       action:
-        'Добавьте MeshInstance3D, в свойстве Mesh выберите BoxMesh, задайте Size = Vector3(20, 1, 20). Затем рядом добавьте StaticBody3D с CollisionShape3D (BoxShape3D того же размера).',
+        'Добавьте MeshInstance3D, в свойстве Mesh выберите BoxMesh, задайте Size = Vector3(20, 1, 20). Затем рядом добавьте StaticBody3D с CollisionShape3D (BoxShape3D того же размера). Назовите узел с полом `Ground` — пример world.gd ищет землю именно по этому имени.',
       result: 'В сцене видны пол и объёмные стены.',
       note:
         'Меш и коллизия — два отдельных узла. Забыть CollisionShape3D — самая частая ошибка: объект виден, но сквозь него можно пройти.',
@@ -170,18 +170,18 @@ export const stage09: Stage = {
     {
       id: 's9-6',
       title: 'Захват мыши',
-      where: 'Project Settings → Display → Input → Mouse',
+      where: 'Project → Project Settings → Input Devices → Mouse',
       action:
-        'В Input Map добавьте действие "toggle_mouse" (Escape). При входе в игру ставьте Input.mouse_mode = Input.MOUSE_MODE_CAPTURED, по Escape — возвращайте MOUSE_MODE_VISIBLE.',
+        'В Input Map добавьте действие "toggle_mouse" (Escape). При входе в игру ставьте Input.mouse_mode = Input.MOUSE_MODE_CAPTURED, по Escape — возвращайте MOUSE_MODE_VISIBLE. Проверьте, что в Input Map есть и действие "jump" из этапа 00: без него пример контроллера будет писать ошибку в Output каждый кадр. Отпустить мышь можно и встроенным действием ui_cancel (Escape) — оно есть в любом проекте.',
       result: 'Мышь не вылетает из окна, Escape работает.',
-      note: 'В веб-экспорте захват мыши не поддерживается — это ограничение платформы, а не ошибка.',
+      note: 'В веб-экспорте захват мыши работает через Pointer Lock, но браузер требует, чтобы захват инициировался прямо из обработчика ввода (клика по канвасу) — иначе он не сработает.',
     },
     {
       id: 's9-7',
       title: 'Выстрел лучом',
       where: 'RayCast3D',
       action:
-        'Добавьте RayCast3D в камеру, задайте target_position = Vector3(0, 0, -50). По нажатию «fire» проверяйте is_colliding() и печатайте имя цели.',
+        'Добавьте в камеру RayCast3D и задайте target_position = Vector3(0, 0, -50). Рядом добавьте Marker3D и назовите его Muzzle — пример shooter.gd ищет метку именно по этому имени. В Input Map создайте действие «fire» (левая кнопка мыши) и по нему проверяйте is_colliding() и печатайте имя цели.',
       result: 'Луч находит объект и печатает его имя.',
     },
     {
@@ -189,7 +189,7 @@ export const stage09: Stage = {
       title: 'Проверить гравитацию',
       where: 'CharacterBody3D',
       action:
-        'Добавьте CharacterBody3D с CollisionShape3D (CapsuleShape3D). В _physics_process добавляйте velocity.y -= 9.8 * delta, затем move_and_slide().',
+        'Добавьте CharacterBody3D с CollisionShape3D (CapsuleShape3D). В _physics_process добавляйте velocity.y -= GRAVITY * delta, где GRAVITY = 18.0 (в примере). Значение 9.8 — дефолт физики Godot, но для отзывчивого управления 3D-персонажем берут больше.',
       result: 'Персонаж падает на пол и стоит на нём.',
       note: 'В 3D принято ускорение 9.8, а не «пиксели в секунду» — но в Godot это просто число, задайте удобную вам скорость.',
     },
@@ -216,6 +216,10 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Escape отпускает мышь. Действие ui_cancel есть в любом проекте из коробки.
+	if event.is_action_pressed("ui_cancel"):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion := event as InputEventMouseMotion
 		rotate_y(-motion.relative.x * MOUSE_SENSITIVITY)
@@ -231,19 +235,19 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = 0.0
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	# Действие "jump" заводится в Input Map (этап 00). Проверяем, что оно есть:
+	# иначе движок пишет в Output ошибку каждый кадр.
+	if InputMap.has_action("jump") and Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
 	var input := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	var direction := (transform.basis * Vector3(input.x, 0.0, input.y)).normalized()
-	if direction.length() > 1.0:
-		direction = direction.normalized()
+	var direction := (transform.basis * Vector3(input.x, 0.0, -input.y)).normalized()
 	velocity.x = direction.x * SPEED
 	velocity.z = direction.z * SPEED
 	move_and_slide()
 `,
       explanation:
-        'Ключевая деталь 3D-контроллера: направление движения считается в локальных координатах персонажа. `transform.basis * Vector3(...)` превращает «вправо-вперёд» в мировые координаты с учётом того, куда развёрнут игрок. Поворот разделён: тело вращается по горизонтали (`rotate_y`), а камера наклоняется по вертикали — так «вверх» всегда остаётся вверх. Гравитация — простое ускорение вниз, которое накапливается каждый кадр.',
+        'Ключевая деталь 3D-контроллера: направление движения считается в локальных координатах персонажа. `transform.basis * Vector3(...)` превращает «вправо-вперёд» в мировые координаты с учётом того, куда развёрнут игрок. Поворот разделён: тело вращается по горизонтали (`rotate_y`), а камера наклоняется по вертикали — так «вверх» всегда остаётся вверх. Гравитация — простое ускорение вниз, которое накапливается каждый кадр. Действие `jump` берётся из Input Map: если его там нет, движок будет каждый кадр писать в Output ошибку о том, что такого действия нет, поэтому пример сначала спрашивает `InputMap.has_action("jump")`. Escape (действие `ui_cancel`, оно есть в любом проекте) отпускает захваченную мышь — иначе из игры не выйти.',
       versionNote:
         'Input.MOUSE_MODE_CAPTURED и InputEventMouseMotion.relative доступны с Godot 4.x без изменений.',
     },
@@ -281,7 +285,7 @@ func muzzle_position() -> Vector3:
 	return muzzle.global_position
 `,
       explanation:
-        'Луч — это объект с собственным положением и поворотом, поэтому каждый кадр мы синхронизируем его с камерой: позиция и базис. `target_hit` отдаёт и объект, и точку попадания — этого хватает и для визуального эффекта, и для расчёта урона. Marker3D используется как «точка вылета» снаряда: это узел без визуализации, который просто задаёт координату.',
+        'Луч — это объект с собственным положением и поворотом, поэтому каждый кадр мы синхронизируем его с камерой: позиция и базис. `target_hit` отдаёт и объект, и точку попадания — этого хватает и для визуального эффекта, и для расчёта урона. Marker3D используется как «точка вылета» снаряда: это узел без визуализации, который просто задаёт координату. Скрипт ждёт готовую структуру: корень Node3D → Camera3D → внутри камеры RayCast3D и Marker3D с именем `Muzzle` (именно `Muzzle` ищет пример).',
       versionNote:
         'RayCast3D имеет свойство collide_with_areas — в Godot 4 оно включено по умолчанию, в Godot 3 было наоборот.',
     },
@@ -326,11 +330,14 @@ func _apply_ground_material() -> void:
 	material.albedo_color = Color(0.28, 0.32, 0.25)
 	material.roughness = 0.9
 	material.metallic = 0.0
-	var ground := $Ground as MeshInstance3D
+	# Ищем землю по имени. Если такого узла нет — просто пропускаем материал.
+	var ground := get_node_or_null("Ground") as MeshInstance3D
+	if ground == null:
+		return
 	ground.material_override = material
 `,
       explanation:
-        'Окружение настраивается кодом, когда вы хотите, чтобы сцена выглядела одинаково при разных настройках проекта. Связка Environment → Sky → ProceduralSkyMaterial даёт небо, и ambient-освещение берётся из него же (`AMBIENT_SOURCE_SKY`). Тонмаппинг FILMIC смягчает пересветы. Материал земли задаётся через `material_override` — так он применится ко всем поверхностям узла.',
+        'Окружение настраивается кодом, когда вы хотите, чтобы сцена выглядела одинаково при разных настройках проекта. Связка Environment → Sky → ProceduralSkyMaterial даёт небо, и ambient-освещение берётся из него же (`AMBIENT_SOURCE_SKY`). Тонмаппинг FILMIC смягчает пересветы. Материал земли задаётся через `material_override` — так он применится ко всем поверхностям узла. Пример ищет землю по имени узла `Ground`: назовите так свой MeshInstance3D с полом. Если узла с таким именем нет, скрипт не падает — просто пропускает материал.',
       versionNote:
         'Environment.tonemap_mode и AMBIENT_SOURCE_SKY существуют в Godot 4.x; в Godot 3 ambient настраивался иначе.',
     },
@@ -490,7 +497,7 @@ func _process(delta: float) -> void:
       kind: 'reference',
     },
   ],
-  diagrams: ['scene-3d', 'collision-layers'],
+  diagrams: ['scene-3d'],
   versionNotes: [
     {
       version: '4.0',

@@ -31,7 +31,7 @@ export const stage02: Stage = {
         '`load("res://enemy.tscn")` — сцена загружается в рантайме; путь может быть в переменной.',
         '`var enemy := ENEMY_SCENE.instantiate()` — создаёт узел из сцены.',
         '`add_child(enemy)` — вводит узел в дерево; только после этого начнут работать _ready() и обработка ввода.',
-        'Порядок: instantiate → настроить свойства → add_child. Настройка после add_child перезапускает часть логики.',
+        'Порядок: instantiate → настроить свойства → add_child. Если задать свойства после add_child, узел уже прошёл _ready() — и логика в _ready() увидит значения по умолчанию, а не ваши.',
       ],
       diagramRef: 'scene-instancing',
     },
@@ -75,11 +75,11 @@ export const stage02: Stage = {
       title: 'Ресурсы: данные отдельно от поведения',
       term: 'Resource',
       summary:
-        'Resource — контейнер данных, который можно сохранить в файл .tres и переиспользовать во many экземплярах.',
+        'Resource — контейнер данных, который можно сохранить в файл .tres и переиспользовать во многих экземплярах.',
       why:
         'Смешивать данные и поведение в одном скрипте — путь к копипасту. Ресурс отделяет «что это за предмет» от «что предмет делает»: один ItemData с описанием зелья работает и в инвентаре, и в магазине.',
       details: [
-        'Создать ресурс: File → New → Resource → Custom Resource, или Inherit Resource в диалоге нового скрипта.',
+        'Создать ресурс: в панели FileSystem (внизу слева) нажмите правую кнопку мыши → New Resource, или Inherit Resource в диалоге нового скрипта.',
         'Сохранение: ResourceSaver.save(item, "user://items/sword.tres").',
         'Загрузка: `var item: ItemData = load("res://items/sword.tres")`.',
         'Ссылка в инспекторе: `@export var item: ItemData`.',
@@ -115,7 +115,7 @@ export const stage02: Stage = {
         'Многие «зависания» и «не работает» — это неправильный момент вызова. Понять, когда узел в дереве, а когда ещё нет, — половина отладки в Godot.',
       details: [
         '_enter_tree — узел вошёл в дерево, родитель найден, но дети ещё не готовы.',
-        '_ready — все дети готовы, можно брать ссылки на $Sibling.',
+        '_ready — ребёнок готов раньше родителя: когда вызывается _ready родителя, все его дети уже готовы, поэтому можно брать ссылки на $Sibling.',
         '_process(delta) — каждый кадр. _physics_process(delta) — с фиксированной частотой (по умолчанию 60 Гц).',
         '_exit_tree — узел выходит из дерева. Здесь отключают сигналы, которые вели наружу.',
         'Порядок выхода обратный: дети выходят раньше родителя.',
@@ -129,7 +129,7 @@ export const stage02: Stage = {
       title: 'Создать сцену-шаблон',
       where: 'Scene → New Scene → 2D Scene',
       action:
-        'Создайте сцену enemy.tscn: корень CharacterBody2D с именем Enemy, дочерний Sprite2D и Area2D с CollisionShape2D. Сохраните в res://scenes/enemy.tscn.',
+        'Создайте сцену enemy.tscn: корень CharacterBody2D с именем Enemy, у корня — CollisionShape2D (форма самого врага), дочерний Sprite2D и Area2D с CollisionShape2D (зона вокруг него). Без CollisionShape2D у корня тело не участвует в столкновениях. Добавьте узлы через «+» (Add Child Node) в панели Scene. Папку scenes сначала создайте: правой кнопкой по res:// в панели FileSystem → New Folder → scenes. Сохраните сцену в res://scenes/enemy.tscn.',
       result: 'Файл enemy.tscn существует, в нём три узла.',
       note: 'Имя корневого узла совпадает с именем файла — так удобнее искать сцену в FileSystem.',
       diagramRef: 'scene-instancing',
@@ -139,8 +139,8 @@ export const stage02: Stage = {
       title: 'Спавнить сцену из кода',
       where: 'Скрипт main.gd',
       action:
-        'Объявите `const ENEMY_SCENE := preload("res://scenes/enemy.tscn")`. В функции `_spawn_enemy(position: Vector2)` создайте экземпляр, задайте позицию и добавьте в дерево.',
-      result: 'При вызове функции на сцене появляется новый узел Enemy.',
+        'Объявите `const ENEMY_SCENE := preload("res://scenes/enemy.tscn")`. В функции `_spawn_enemy(position: Vector2)` создайте экземпляр, добавьте его в дерево и только потом задайте позицию: `add_child(enemy)` → `enemy.global_position = position`. Позицию задают после add_child: пока узел не в дереве, его global_position не учитывает положение родителя. И вызовите функцию — например, из `_ready()`: `_spawn_enemy(Vector2(100, 100))`, иначе враг просто не появится.',
+      result: 'Враг появился в сцене сразу при запуске (в панели Scene виден новый узел Enemy).',
       note:
         'Строка с `preload` — на уровне класса, а не внутри функции: так сцена загружается один раз при старте проекта, а не при каждом спавне.',
       diagramRef: 'scene-instancing',
@@ -150,7 +150,7 @@ export const stage02: Stage = {
       title: 'Связать узлы сигналом',
       where: 'Inspector → вкладка Node → Signals',
       action:
-        'Выделите узел Enemy, откройте вкладку Node → Signals, найдите сигнал tree_exited и нажмите «Connect…». Выберите корневой узел и метод-обработчик.',
+        'Сначала напишите в скрипте корневого узла пустой обработчик: `func _on_enemy_exited() -> void: print("Враг ушёл")`. Затем выделите узел Enemy, откройте вкладку Node → Signals (если раздел свёрнут — нажмите «…» справа), найдите сигнал tree_exited и нажмите «Connect…». Выберите корневой узел и метод-обработчик.',
       result: 'В коде появилась строка подключения, а в Godot — визуальная связь между узлами.',
       note:
         'Связи, созданные через редактор, сохраняются в сцене. Это надёжнее, чем подписка кодом: связь видна и не теряется при копировании сцены.',
@@ -168,9 +168,9 @@ export const stage02: Stage = {
     {
       id: 's2-5',
       title: 'Создать свой ресурс',
-      where: 'File → New → Resource → Custom Resource',
+      where: 'Панель FileSystem (внизу слева) → правая кнопка → New Resource',
       action:
-        'Создайте ресурс item_data.gd, унаследованный от Resource. Объявите в нём поля: item_name, price, description. Сохраните его как res://data/potion.tres.',
+        'Сделайте это в два шага. 1) Скрипт: в панели FileSystem правой кнопкой → New Script… → в поле «Inherits:» выберите Resource → имя item_data.gd → Create. Объявите в нём поля: item_name, price, description. 2) Ресурс: в FileSystem правой кнопкой → New Resource… → тип Resource → имя potion.tres, папка data (её тоже нужно создать: New Folder → data). В Inspector ресурса перетащите item_data.gd в свойство Script и сохраните (Ctrl+S).',
       result: 'Файл potion.tres создан и открывается как настройки предмета.',
       note:
         'Скрипт ресурса — обычный скрипт, просто с extends Resource. В нём нет _ready(): ресурс не узел и не входит в дерево.',
@@ -192,7 +192,7 @@ export const stage02: Stage = {
       where: 'Панель Output',
       action:
         'Добавьте print() в _enter_tree(), _ready() и _exit_tree() у двух узлов — родителя и ребёнка. Запустите и посмотрите порядок в Output.',
-      result: 'Видно: сначала родитель, потом ребёнок; при выходе — наоборот.',
+      result: 'Видно: `_enter_tree` — сначала родитель, потом ребёнок; `_ready` — наоборот, сначала ребёнок, потом родитель; при выходе — сначала ребёнок, потом родитель.',
       diagramRef: 'node-lifecycle',
     },
   ],
@@ -256,12 +256,19 @@ func _process(delta: float) -> void:
 		_timer = SPAWN_INTERVAL
 		_spawn()
 
+func _ready() -> void:
+	# Свой сигнал тоже нужно подписать — объявление и emit ничего не делают,
+	# пока никто не подключился.
+	enemy_spawned.connect(_on_enemy_spawned)
+
 func _spawn() -> void:
 	var enemy := ENEMY_SCENE.instantiate()
-	enemy.position = global_position
 	# Подписка до добавления в дерево: сигнал может сработать уже в _ready врага.
 	enemy.tree_exited.connect(_on_enemy_left)
 	add_child(enemy)
+	# Позицию задаём ПОСЛЕ add_child: пока узел не в дереве, он не знает
+	# о родителе, и global_position превратится в position.
+	enemy.global_position = global_position
 	_alive += 1
 	enemy_spawned.emit(enemy)
 
@@ -272,7 +279,7 @@ func _on_enemy_spawned(enemy: Node2D) -> void:
 	print("Враг на позиции: ", enemy.position)
 `,
       explanation:
-        'Порядок в `_spawn` важнее, чем кажется. Сначала создаём узел, потом подписываемся, и только потом добавляем в дерево — так мы точно не пропустим сигнал. После `add_child` у врага вызовется `_ready()`. Обратите внимание на `tree_exited`: он срабатывает, когда узел покидает дерево, — это надёжный способ узнать, что враг ушёл, независимо от того, кто его удалил.',
+        'Порядок в `_spawn` важнее, чем кажется. Сначала создаём узел, потом подписываемся, и только потом добавляем в дерево — так мы точно не пропустим сигнал. После `add_child` у врага вызовется `_ready()`. Позицию задаём **после** `add_child`: пока узел не в дереве, `global_position` ещё не учитывает положение родителя, и враг появился бы в удвоенной точке. Обратите внимание на `tree_exited`: он срабатывает, когда узел покидает дерево, — это надёжный способ узнать, что враг ушёл, независимо от того, кто его удалил. Но сигнал сработает, только если врага кто-то удалит: например, по нажатию «shoot» вызовите `enemy.queue_free()` — тогда `_alive` уменьшится.',
       versionNote:
         'Сигнал `tree_exited` существует в Godot 4.x. `tree_entered` — парный к нему.',
     },
@@ -317,9 +324,10 @@ func _on_body_entered(body: Node2D) -> void:
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	print("Предмет ждёт игрока: игрок должен быть в группе «player»")
 `,
       explanation:
-        '`await` превращает обработчик события в «последовательность шагов». Пока таймер идёт, функция приостановлена, а движок продолжает работать. Важная деталь — отключение подписки `disconnect` перед ожиданием: иначе, если игрок быстро входит в область дважды, обработчик запустится дважды и таймер будет создан дважды.',
+        '`await` превращает обработчик события в «последовательность шагов». Пока таймер идёт, функция приостановлена, а движок продолжает работать. Важная деталь — отключение подписки `disconnect` перед ожиданием: иначе, если игрок быстро входит в область дважды, обработчик запустится дважды и таймер будет создан дважды. Проверка `is_in_group("player")` не сработает, пока игрок не добавлен в группу: в Inspector у узла игрока — вкладка Node → Groups → Add → «player». Без этого предмет просто молча не исчезнет, ошибок не будет. И у самого тела должен быть CollisionShape2D — без формы Area2D его не увидит.',
       versionNote:
         '`get_tree().create_timer(seconds).timeout` — стандартный способ паузы в Godot 4. `await get_tree().process_frame` ждёт один кадр.',
     },
@@ -355,7 +363,7 @@ func _ready() -> void:
       description:
         'В функции `_ready()` попробуйте обратиться к `$Player/Sprite2D.texture`, когда узла Player нет. Прочитайте ошибку. Потом сделайте проверку `if has_node("Player")` и исправьте код.',
       level: 3,
-      hint: 'Ошибка «Invalid get index ... on base: Nil» почти всегда означает: «объект ещё не создан в момент обращения».',
+      hint: 'Ошибка «Invalid access to property or key \'…\' on a base object of type \'Nil\'» почти всегда означает: «объект ещё не создан в момент обращения».',
     },
     {
       id: 't2-5',
@@ -426,7 +434,7 @@ func _ready() -> void:
     },
     {
       title: 'Scene composition — официальный туториал',
-      url: 'https://docs.godotengine.org/en/stable/getting_started/step_by_step/scene_composition.html',
+      url: 'https://docs.godotengine.org/en/stable/getting_started/step_by_step/instancing.html',
       kind: 'docs',
     },
     {

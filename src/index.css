@@ -37,7 +37,8 @@
 
     /* Контуры */
     --border: 214 32% 88%;
-    --input: 214 32% 88%;
+    /* Граница поля ввода — часть контрола, её должно быть видно (WCAG 1.4.11). */
+    --input: 214 25% 68%;
     --ring: 205 72% 36%;
 
     /* Диаграммы */
@@ -61,11 +62,27 @@
     --radius-2xl: 28px;
     --radius: 10px;
 
+    /* Бренд: градиенты и подсветка */
+    --brand-gradient: linear-gradient(
+      135deg,
+      hsl(205 72% 36%) 0%,
+      hsl(199 85% 44%) 52%,
+      hsl(187 72% 32%) 100%
+    );
+    --brand-gradient-soft: linear-gradient(
+      135deg,
+      hsl(205 90% 96%) 0%,
+      hsl(199 85% 95%) 55%,
+      hsl(187 70% 95%) 100%
+    );
+    --brand-glow: 0 16px 40px -18px hsl(205 72% 36% / 0.55);
+
     /* Тени */
     --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.06);
     --shadow-sm: 0 1px 3px 0 rgb(15 23 42 / 0.1), 0 1px 2px -1px rgb(15 23 42 / 0.1);
     --shadow-md: 0 4px 12px -2px rgb(15 23 42 / 0.12), 0 2px 6px -2px rgb(15 23 42 / 0.08);
     --shadow-lg: 0 12px 32px -8px rgb(15 23 42 / 0.18);
+    --shadow-card-hover: 0 16px 36px -16px rgb(15 23 42 / 0.3);
     --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.45);
   }
 
@@ -95,7 +112,7 @@
     --info-foreground: 222 47% 8%;
 
     --border: 217 33% 22%;
-    --input: 217 33% 22%;
+    --input: 217 25% 40%;
     --ring: 205 90% 62%;
 
     --diagram-surface: 222 47% 7%;
@@ -113,6 +130,22 @@
     --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.4);
     --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.55), 0 2px 6px -2px rgb(0 0 0 / 0.4);
     --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+    --shadow-card-hover: 0 16px 36px -16px rgb(0 0 0 / 0.75);
+
+    /* Бренд в тёмной теме: тот же тон, но светлее — на тёмном фоне. */
+    --brand-gradient: linear-gradient(
+      135deg,
+      hsl(205 90% 55%) 0%,
+      hsl(199 85% 52%) 52%,
+      hsl(187 75% 45%) 100%
+    );
+    --brand-gradient-soft: linear-gradient(
+      135deg,
+      hsl(205 45% 16%) 0%,
+      hsl(199 40% 15%) 55%,
+      hsl(187 45% 14%) 100%
+    );
+    --brand-glow: 0 16px 40px -18px hsl(205 90% 55% / 0.45);
   }
 
   * {
@@ -121,7 +154,8 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-padding-top: 5rem;
+    /* Смещение даёт scroll-mt у целевых элементов: складывать их нельзя. */
+    scroll-padding-top: 0;
   }
 
   body {
@@ -164,6 +198,27 @@
     @apply overflow-x-auto overscroll-x-contain;
     scrollbar-width: thin;
   }
+
+  /*
+   * Появление блока при прокрутке.
+   *
+   * Скрытое состояние задаётся только когда анимации разрешены: иначе
+   * при отключённых анимациях или при печати контент обязан быть виден сразу.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 @layer components {
@@ -197,6 +252,11 @@
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Задержка появления тоже отключается: иначе блок «появляется» позже. */
+  .reveal {
+    transition-delay: 0s !important;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -221,6 +281,78 @@
   footer,
   .print-hidden {
     display: none !important;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition-delay: 0s !important;
+  }
+
+  /* Раскладка страницы этапа в две колонки на печати не нужна. */
+  .stage-layout {
+    display: block !important;
+  }
+
+  /* Скип-линк и кнопки действий на бумаге не нужны. */
+  .skip-link {
+    display: none !important;
+  }
+
+  /* Моноширинный текст в тёмной теме светлый — на белом нечитаем.
+     Правило только для тёмной темы: в светлой подсветка синтаксиса остаётся. */
+  .dark .font-mono,
+  .dark .font-mono span {
+    color: #111 !important;
+  }
+
+  /* В тёмной теме весь текст светлый — на бумаге его не видно.
+     Принудительно перекрашиваем токены и подложки карточек. */
+  .dark :is(
+      .text-foreground,
+      .text-muted-foreground,
+      .text-primary,
+      .text-secondary-foreground,
+      .text-accent-foreground,
+      .text-success,
+      .text-warning,
+      .text-info,
+      .text-destructive
+    ) {
+    color: #111 !important;
+  }
+
+  .dark :is(.bg-card, .bg-popover, .bg-muted, .bg-accent, .bg-secondary) {
+    background-color: #ffffff !important;
+  }
+
+  /* Текст внутри SVG-диаграмм задаётся через fill, а не color. */
+  .dark figure svg text,
+  .dark figure svg tspan {
+    fill: #111 !important;
+  }
+
+  /* Закрытый <details> в новых Chrome прячет содержимое — на печати его нужно раскрыть. */
+  details::details-content {
+    content-visibility: visible !important;
+  }
+
+  /* Градиенты и подложки на бумаге не печатаются. */
+  .bg-brand,
+  .bg-brand-soft {
+    background-image: none !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+
+  table {
+    font-size: 9.5pt;
   }
 
   .print-break-before {

@@ -110,8 +110,9 @@ export const stage01: Stage = {
       details: [
         'Parse Error: «Expected closing ")" after call arguments» — не закрыта скобка.',
         '«Identifier "Player" not declared in the current scope» — опечатка в имени или не создан class_name.',
-        '«Invalid get index "velocity" on base: "Nil"» — обращение к свойству у null. Обычно это «объект ещё не создан в _ready()».',
-        '«Attempt to call function "play" in base "null"» — то же самое: вызвали метод у несуществующего объекта.',
+        '«Invalid access to property or key \'velocity\' on a base object of type \'Nil\'» — обращение к свойству у null. Обычно это «объект ещё не создан в _ready()».',
+        '«Invalid call. Nonexistent function \'play\' in base \'Nil\'» — то же самое: вызвали метод у несуществующего объекта.',
+        '«Cannot infer the type of "x" variable because the value doesn\'t have a set type» — оператор := не смог вывести тип. Чаще всего это `load()`: он возвращает Variant. Берите скрипт через `preload("res://путь.gd")` — тип известен сразу.',
         'Ошибка в GDScript останавливает выполнение функции, но не всю игру, если это не критичный участок.',
       ],
     },
@@ -122,9 +123,9 @@ export const stage01: Stage = {
       title: 'Создать скрипт с данными игрока',
       where: 'Scene → Attach Script… на узле Player',
       action:
-        'Создайте узел CharacterBody2D с именем Player и прикрепите к нему скрипт player.gd. Объявите переменные: имя, здоровье, очки, скорость.',
-      result: 'В Inspector узла Player появились поля Name, Health, Score, Speed.',
-      note: 'Тип переменной виден под именем: «int», «float». Это подсказка движка, а не ваша подпись.',
+        'Добавьте узел: в панели Scene (слева) нажмите «+» (Add Child Node) → в поиске наберите CharacterBody2D → Create. Переименуйте узел в Player (поле Name над сценой). Правой кнопкой по узлу → Attach Script… → player.gd. Объявите переменные: display_name, здоровье, очки, скорость.',
+      result: 'В Inspector узла Player появились поля Display Name и Speed — только те, что объявлены с @export. Переменные health и score живут в коде: обычные var в Inspector не появляются.',
+      note: 'В Inspector видны только переменные с @export — обычные var там не появляются. Тип переменной виден под именем: «int», «float». Это подсказка движка, а не ваша подпись.',
       diagramRef: 'gdscript-typing',
     },
     {
@@ -160,15 +161,15 @@ export const stage01: Stage = {
       title: 'Проверить типы в Inspector',
       where: 'Inspector узла Player',
       action:
-        'Впишите в поле Health значение «сто» — текст вместо числа. Godot покажет ошибку типа. Верните целое число.',
+        'Попробуйте вписать в числовое поле Speed значение «сто» — текст вместо числа. Числовое поле текст не примет: значение не изменится, а в Output может появиться сообщение о типе. Верните 220.',
       result: 'Поле снова принимает число, ошибка исчезла.',
     },
     {
       id: 's1-6',
       title: 'Собрать игровое состояние',
-      where: 'Новый скрипт game_state.gd',
+      where: 'Новый скрипт ranks.gd (как в примере ниже)',
       action:
-        'Создайте отдельный скрипт с enum-состояниями и функцией, которая по количеству очков возвращает строку «новичок» / «опытный» / «легенда».',
+        'Создайте отдельный скрипт ranks.gd с enum-состояниями и функцией, которая по количеству очков возвращает строку «новичок» / «опытный» / «легенда». Это «библиотека» функций: файл не привязан к узлу, поэтому вызовите его из любого узла — var ranks = load("res://ranks.gd").new(), а дальше ranks.rank_title(500).',
       result: 'Функция возвращает разные строки в зависимости от очков.',
       note:
         'enum — это именованный набор целых чисел: `enum Rank { NEWBIE, VETERAN, LEGEND }`. Обращение: `Rank.VETERAN`.',
@@ -282,9 +283,9 @@ func most_expensive() -> String:
 	return best_name
 `,
       explanation:
-        'Типизированные массивы (`Array[int]`) и словари (`Dictionary`) защищают от ошибок вроде положить в массив строку. `for i in range(0, size, 3)` — цикл с шагом: 0, 3, 6… `for key in dictionary:` перебирает ключи, значение достаётся обращением `dictionary[key]`. Обратите внимание: в последнем примере это неэффективно — так выглядит типичная «первая версия», её разбираем на этапе 08.',
+        'Типизированные массивы (`Array[int]`) защищают от ошибок вроде положить в массив строку. `for i in range(0, size, 3)` — цикл с шагом: 0, 3, 6… `for key in dictionary:` перебирает ключи, значение достаётся обращением `dictionary[key]`. Обратите внимание: в последнем примере это неэффективно — так выглядит типичная «первая версия», её разбираем на этапе 08.',
       versionNote:
-        'Типизированные коллекции (`Array[int]`, `Dictionary[String, int]`) доступны с Godot 4.0.',
+        'Типизированные массивы (`Array[int]`) доступны с Godot 4.0, типизированные словари (`Dictionary[String, int]`) — с 4.4.',
     },
     {
       id: 'safe-input',
@@ -405,12 +406,12 @@ func split_csv(line: String) -> Array[String]:
     },
     {
       title: 'Справочник языка GDScript',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_reference.html',
+      url: 'https://docs.godotengine.org/en/stable/classes/class_%40gdscript.html',
       kind: 'reference',
     },
     {
       title: 'Style guide для GDScript',
-      url: 'https://docs.godotengine.org/en/stable/contributing/development_process/code_style.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html',
       kind: 'docs',
       note: 'Правила форматирования от самого Godot. Стоит прочитать до этапа 08.',
     },
@@ -424,7 +425,7 @@ func split_csv(line: String) -> Array[String]:
   versionNotes: [
     {
       version: '4.0',
-      text: 'В GDScript 4 появилась статическая типизация, оператор := и типизированные коллекции (Array[int], Dictionary[String, int]).',
+      text: 'В GDScript 4 появилась статическая типизация, оператор := и типизированные массивы (Array[int]). Типизированные словари (Dictionary[String, int]) появились позже — в Godot 4.4.',
     },
     {
       version: '4.0',

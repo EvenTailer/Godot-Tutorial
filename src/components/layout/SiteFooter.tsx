@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { navItems } from '@/components/layout/nav'
+import { ResetProgress } from '@/components/content/ResetProgress'
 
 export function SiteFooter() {
   return (
@@ -8,13 +9,13 @@ export function SiteFooter() {
         <div className="max-w-sm">
           <p className="font-semibold">Godot 4 — пошаговое руководство</p>
           <p className="mt-2 text-small text-muted-foreground">
-            12 этапов, 24 недели, от первого запуска редактора до релиза собственной игры.
+            13 этапов, 24 недели, от первого запуска редактора до релиза собственной игры.
             Весь контент — на русском, все примеры кода проверяются настоящим движком Godot.
           </p>
         </div>
 
         <nav aria-label="Навигация в подвале">
-          <ul className="grid grid-cols-2 gap-x-8 gap-y-2 sm:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-x-8 gap-y-2 sm:grid-cols-4">
             {navItems.map((item) => (
               <li key={item.to}>
                 <Link
@@ -30,9 +31,12 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-border">
-        <div className="mx-auto max-w-content px-gutter py-4 text-tiny text-muted-foreground">
-          Сайт — статический, работает офлайн. Иллюстрации — векторные, скриншоты редактора —
-          заглушки с пометкой. Godot — свободный движок с лицензией MIT.
+        <div className="mx-auto flex max-w-content flex-col gap-2 px-gutter py-4 text-tiny text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            Сайт — статический, работает офлайн. Иллюстрации — векторные, скриншоты редактора —
+            заглушки с пометкой. Godot — свободный движок с лицензией MIT.
+          </p>
+          <ResetProgress className="shrink-0" />
         </div>
       </div>
     </footer>

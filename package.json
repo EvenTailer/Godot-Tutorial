@@ -10,7 +10,12 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -b",
-    "verify:godot": "node scripts/verify-godot-examples.mjs"
+    "verify:godot": "node scripts/verify-godot-examples.mjs",
+    "verify:errors": "node scripts/verify-error-messages.mjs",
+    "verify:links": "node scripts/verify-links.mjs",
+    "verify:manifest": "node scripts/generate-stage-manifest.mjs --check",
+    "verify:size": "node scripts/measure-bundle.mjs",
+    "verify": "npm run typecheck && npm run lint && npm run verify:godot && npm run verify:errors && npm run verify:links && npm run verify:manifest && npm run build && npm run verify:size"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

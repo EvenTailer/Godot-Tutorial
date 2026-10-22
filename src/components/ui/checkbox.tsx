@@ -17,7 +17,9 @@ export interface CheckboxProps
  */
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, label, showMark = true, id, ...props }, ref) => {
-    const inputId = id ?? React.useId()
+    // useId вызывается безусловно: условный вызов ломает правило хуков.
+    const generatedId = React.useId()
+    const inputId = id ?? generatedId
     return (
       <label htmlFor={inputId} className={cn('flex min-h-11 items-start gap-3', className)}>
         <span className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center">

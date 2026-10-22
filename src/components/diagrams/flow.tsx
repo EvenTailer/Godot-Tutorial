@@ -53,7 +53,7 @@ export function GdscriptTypingDiagram() {
             y={62}
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.text}
+            style={{ fill: diagramColor.text }}
           >
             {' := выводит тип'}
           </text>
@@ -62,7 +62,7 @@ export function GdscriptTypingDiagram() {
             y={84}
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.text}
+            style={{ fill: diagramColor.text }}
           >
             {' : задаёт тип'}
           </text>
@@ -71,7 +71,7 @@ export function GdscriptTypingDiagram() {
             y={106}
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.text}
+            style={{ fill: diagramColor.text }}
           >
             {' без : = Variant'}
           </text>
@@ -485,7 +485,7 @@ export function UiAnchorsDiagram() {
             y={36}
             fontSize={diagramFont.small}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            fill={diagramColor.muted}
+            style={{ fill: diagramColor.muted }}
           >
             anchor: 0 — 0
           </text>

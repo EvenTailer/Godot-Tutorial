@@ -41,10 +41,9 @@ export function DiagramNode({
         width={width}
         height={height}
         rx={diagramRadius}
-        fill={fill}
-        stroke={stroke}
         strokeWidth={1.5}
         strokeDasharray={dashed ? '5 4' : undefined}
+        style={{ fill, stroke }}
       />
       <text
         x={x + width / 2}
@@ -52,8 +51,8 @@ export function DiagramNode({
         textAnchor="middle"
         fontSize={titleSize ?? diagramFont.size}
         fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-        fill={textColor}
         fontWeight={variant === 'accent' ? 600 : 500}
+        style={{ fill: textColor }}
       >
         {title}
       </text>
@@ -64,7 +63,7 @@ export function DiagramNode({
           textAnchor="middle"
           fontSize={diagramFont.small}
           fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-          fill={diagramColor.muted}
+          style={{ fill: diagramColor.muted }}
         >
           {subtitle}
         </text>
@@ -76,7 +75,7 @@ export function DiagramNode({
           textAnchor="end"
           fontSize={diagramFont.small}
           fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-          fill={diagramColor.muted}
+          style={{ fill: diagramColor.muted }}
         >
           {tag}
         </text>
@@ -112,11 +111,10 @@ export function DiagramEdge({
     <g>
       <path
         d={d}
-        fill="none"
-        stroke={color}
         strokeWidth={kind === 'flow' ? 1.8 : 1.4}
         strokeDasharray={kind === 'weak' ? '6 5' : undefined}
         markerEnd={`url(#${markerId})`}
+        style={{ fill: 'none', stroke: color }}
       />
       {label ? (
         <text
@@ -125,7 +123,7 @@ export function DiagramEdge({
           textAnchor="middle"
           fontSize={diagramFont.small}
           fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-          fill={diagramColor.muted}
+          style={{ fill: diagramColor.muted }}
         >
           {label}
         </text>
@@ -148,7 +146,7 @@ export function EdgeLabel({ x, y, children }: EdgeLabelProps) {
       textAnchor="middle"
       fontSize={diagramFont.small}
       fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-      fill={diagramColor.muted}
+      style={{ fill: diagramColor.muted }}
     >
       {children}
     </text>
@@ -172,7 +170,7 @@ export function ArrowDefs({ id }: ArrowDefsProps) {
         markerHeight="7"
         orient="auto-start-reverse"
       >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill={diagramColor.flow} />
+        <path d="M 0 0 L 10 5 L 0 10 z"  style={{ fill: diagramColor.flow }} />
       </marker>
       <marker
         id={`${id}-weak`}
@@ -183,7 +181,7 @@ export function ArrowDefs({ id }: ArrowDefsProps) {
         markerHeight="7"
         orient="auto-start-reverse"
       >
-        <path d="M 0 0 L 10 5 L 0 10 z" fill={diagramColor.weak} />
+        <path d="M 0 0 L 10 5 L 0 10 z"  style={{ fill: diagramColor.weak }} />
       </marker>
     </defs>
   )
@@ -214,9 +212,9 @@ export function DiagramFrame({
         height={height}
         rx={diagramRadius}
         fill="none"
-        stroke={diagramColor.weak}
         strokeWidth={1.2}
         strokeDasharray={dashed ? '6 5' : undefined}
+        style={{ stroke: diagramColor.weak }}
       />
       {title ? (
         <text
@@ -224,7 +222,7 @@ export function DiagramFrame({
           y={y + 16}
           fontSize={diagramFont.small}
           fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-          fill={diagramColor.muted}
+          style={{ fill: diagramColor.muted }}
         >
           {title}
         </text>
@@ -254,9 +252,8 @@ export function DiagramChip({
         width={w}
         height={22}
         rx={11}
-        fill={diagramColor.accentSoft}
-        stroke={diagramColor.accent}
         strokeWidth={1}
+        style={{ fill: diagramColor.accentSoft, stroke: diagramColor.accent }}
       />
       <text
         x={x + w / 2}
@@ -264,7 +261,7 @@ export function DiagramChip({
         textAnchor="middle"
         fontSize={diagramFont.small}
         fontFamily="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-        fill={diagramColor.accent}
+        style={{ fill: diagramColor.accent }}
       >
         {text}
       </text>

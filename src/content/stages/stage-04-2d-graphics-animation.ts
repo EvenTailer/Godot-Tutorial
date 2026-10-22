@@ -131,7 +131,7 @@ export const stage04: Stage = {
     {
       id: 's4-2',
       title: 'Собрать TileSet',
-      where: 'File → New → TileSet, или в TileMapLayer → TileSet → New TileSet',
+      where: 'Панель FileSystem (внизу слева) → правая кнопка → New Resource → TileSet, или в TileMapLayer → TileSet → New TileSet',
       action:
         'Создайте TileSet, добавьте в него источник тайлов (Texture2D), нарежьте на тайлы 16×16 или 32×32. Для земли задайте физическую форму в TileSet.',
       result: 'В TileSet видны тайлы, у одного из них есть коллизия.',
@@ -144,18 +144,18 @@ export const stage04: Stage = {
       title: 'Нарисовать уровень',
       where: 'TileMapLayer → нижняя панель TileMap',
       action:
-        'Добавьте в сцену узел TileMapLayer, назначьте TileSet. В нижней панели выберите тайл и рисуйте инструментом Paint. Зажмите Ctrl для прямой линии, Shift+Ctrl — прямоугольник.',
+        'Добавьте в сцену узел TileMapLayer, назначьте TileSet. В нижней панели выберите тайл и рисуйте инструментом Paint. Удерживайте Shift — рисуется прямая линия, Ctrl+Shift — прямоугольник, просто Ctrl — «пипетка» (взять тайл из сцены).',
       result: 'На 2D-редакторе виден нарисованный уровень.',
-      note: 'Клавиша E включает режим Eraser, P — Paint, F — Bucket Fill. Это запоминается быстро, если пользоваться.',
+      note: 'Горячие клавиши инструментов тайлмапа: D — Paint, L — Line, R — Rectangle, B — Bucket Fill, E — Eraser, P — Picker, S — Selection. Это запоминается быстро, если пользоваться.',
       diagramRef: 'tilemap-layers',
     },
     {
       id: 's4-4',
       title: 'Разделить слои',
-      where: 'Scene → Add Child Node → TileMapLayer',
+      where: 'Панель Scene (слева) → Add Child Node → TileMapLayer',
       action:
         'Добавьте второй TileMapLayer «Декор» и третий «Декор впереди». В Inspector у первого оставьте Enabled = true, у третьего — тоже, но задайте ему z_index выше, чтобы он перекрывал игрока.',
-      result: 'Дерево игрока перед игроком, но игрок может пройти за ним.',
+      result: 'Дерево декора рисуется поверх игрока, но игрок может пройти за ним.',
     },
     {
       id: 's4-5',
@@ -165,7 +165,7 @@ export const stage04: Stage = {
         'Добавьте к игроку AnimatedSprite2D. В Inspector у него нажмите «New SpriteFrames», вставьте кадры и назовите анимацию «idle» и «run». В коде вызывайте sprite.play("run") и sprite.play("idle").',
       result: 'Герой переключает анимации по движению.',
       note:
-        'В Godot 4 у AnimatedSprite2D по умолчанию 60 кадров в секунду. Если анимация «ускорилась» — проверьте Animation Speed в SpriteFrames.',
+        'У каждой анимации в SpriteFrames своя скорость в кадрах в секунду, и по умолчанию она небольшая — 5. Если анимация «ускорилась» или «замедлилась» — проверьте Animation Speed у самой анимации в SpriteFrames.',
       diagramRef: 'animation-state',
     },
     {
@@ -191,7 +191,7 @@ export const stage04: Stage = {
       title: 'Камера следует за игроком',
       where: 'Add Child Node → Camera2D',
       action:
-        'Добавьте Camera2D в сцену игрока (как дочерний узел), включите position_smoothing_enabled и задайте speed = 5. Ограничьте границы камеры в Inspector: Limit Left / Right / Top / Bottom.',
+        'Добавьте Camera2D в сцену игрока (как дочерний узел), включите position_smoothing_enabled и задайте position_smoothing_speed = 5. Ограничьте границы камеры в Inspector: Limit Left / Right / Top / Bottom.',
       result: 'Камера плавно следует за героем и не показывает пустоту за уровнем.',
       note: 'Границы камеры — то, что отличает «играбельный» уровень от «камера улетает в пустоту».',
       diagramRef: 'scene-3d',
@@ -360,7 +360,7 @@ func _build_platforms() -> void:
       description:
         'При получении урона запустите Tween, который увеличивает modulate:self_modulate к красному и возвращает обратно. Добавьте небольшое отталкивание персонажа.',
       level: 3,
-      hint: 'tween_property(sprite, "modulate", Color.RED, 0.1) — а затем обратный твин через tween_callback.',
+      hint: 'tween_property(sprite, "modulate", Color.RED, 0.1) — а затем обратный твин: tween_property(sprite, "modulate", исходный_цвет, 0.15).',
     },
     {
       id: 't4-5',

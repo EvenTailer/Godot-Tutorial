@@ -41,7 +41,7 @@ export const stage10: Stage = {
       title: 'Параметры шейдера',
       term: 'uniform',
       summary:
-        'uniform — значение, которое задаётся снаружи шейдера и не меняется от кадра к кадру внутри шейдера.',
+        'uniform — значение, задаваемое снаружи шейдера. Его можно менять в любой момент через set_shader_parameter() — и шейдер увидит новое значение уже в следующем кадре. Именно поэтому один шейдер заменяет десятки разных.',
       why:
         'Один шейдер с параметрами заменяет десятки разных шейдеров. Вспышка, сила искажения, цвет тумана — всё это параметры.',
       details: [
@@ -79,8 +79,8 @@ export const stage10: Stage = {
         '«Оптимизирую, потому что медленно» — путь в никуда. Реальные тормоза почти всегда вызваны одним из пяти причин, и их видно в цифрах.',
       details: [
         'Debug → Profiler показывает время кадра, физику, отрисовку и скрипты.',
-        'Monitor показывает FPS и память; вызывается из окна игры.',
-        'View → Visible Collision Shapes показывает, где физика.',
+        'Вкладка мониторов (Monitors) с FPS и памятью находится в нижней панели редактора → Debugger → Monitors.',
+        'Чтобы увидеть коллизии: Debug → Visible Collision Shapes — одна галочка включает показ форм и в 2D, и в 3D во время запуска игры.',
         'Частые причины тормозов: _process с тяжёлой работой, создание объектов каждый кадр, слишком много узлов, дорогая отрисовка, отсутствие кэша.',
         'Время кадра в 60 FPS = 16.6 мс. Всё, что вы делаете за кадр, должно укладываться в этот бюджет.',
       ],
@@ -155,7 +155,7 @@ export const stage10: Stage = {
       title: 'Включить профилировщик',
       where: 'Debug → Profiler (в редакторе), запустите игру',
       action:
-        'Откройте вкладку Debug → Profiler, запустите проект (F5). Смотрите на столбцы: Frame Time, Physics, Process, Draw.',
+        'Откройте вкладку Debug → Profiler, запустите проект (F5). Смотрите на столбцы: Frame Time, Physics, Process, Navigation, Rendering.',
       result: 'Вы видите, сколько миллисекунд занимает каждая часть кадра.',
       note: 'Если игра запущена не из редактора, профилировщик не подключится — запускайте всегда через F5.',
       diagramRef: 'perf-profiling',
@@ -257,18 +257,18 @@ func _ready() -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = FLASH_SHADER
 	material = _material
-	set_shader_parameter("amount", 0.0)
+	set_shader_param("amount", 0.0)
 
 func flash(color: Color = Color(1.0, 0.25, 0.25)) -> void:
-	set_shader_parameter("flash_color", color)
+	set_shader_param("flash_color", color)
 	var tween := create_tween()
 	tween.tween_method(_set_amount, 1.0, 0.0, flash_duration)
 
 func _set_amount(value: float) -> void:
 	_flash_amount = value
-	set_shader_parameter("amount", value)
+	set_shader_param("amount", value)
 
-func set_shader_parameter(param: String, value: Variant) -> void:
+func set_shader_param(param: StringName, value: Variant) -> void:
 	if _material == null:
 		return
 	_material.set_shader_parameter(param, value)
@@ -434,17 +434,17 @@ func active_count() -> int:
     },
     {
       title: 'Справочник языка шейдеров Godot',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/shaders/shader_reference/shader_language.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/shaders/shader_reference/shading_language.html',
       kind: 'reference',
     },
     {
       title: 'Оптимизация 2D — официальный туториал',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/performance/optimizing_2d.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/performance/general_optimization.html',
       kind: 'docs',
     },
     {
       title: 'Профилирование — официальный туториал',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/performance/profiling.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/scripting/debug/the_profiler.html',
       kind: 'docs',
     },
   ],

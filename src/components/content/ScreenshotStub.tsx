@@ -28,52 +28,176 @@ export function ScreenshotStub({ stub, className }: ScreenshotStubProps) {
         aria-label={`Схема области редактора: ${stub.caption}`}
         className="w-full bg-[hsl(var(--diagram-surface))]"
       >
-        <rect x="1" y="1" width="318" height="178" rx="6" fill="none" stroke="var(--diagram-stroke)" strokeWidth="1.2" />
+        <rect
+          x="1"
+          y="1"
+          width="318"
+          height="178"
+          rx="6"
+          fill="none"
+          strokeWidth="1.2"
+          style={{ stroke: 'hsl(var(--diagram-stroke))' }}
+        />
 
         {/* Панель меню */}
-        <rect x="1" y="1" width="318" height="16" rx="6" fill="var(--diagram-node-strong)" />
-        <rect x="1" y="12" width="318" height="5" fill="var(--diagram-node-strong)" />
-        <text x="12" y="12" fontSize="7" fill="var(--diagram-muted)" fontFamily="ui-monospace, monospace">
+        <rect
+          x="1"
+          y="1"
+          width="318"
+          height="16"
+          rx="6"
+          style={{ fill: 'hsl(var(--diagram-node-strong))' }}
+        />
+        <rect x="1" y="12" width="318" height="5"  style={{ fill: 'hsl(var(--diagram-node-strong))' }} />
+        <text
+          x="12"
+          y="12"
+          fontSize="7"
+          fontFamily="ui-monospace, monospace"
+          style={{ fill: 'hsl(var(--diagram-muted))' }}
+        >
           Файл Правка Сцена Отладка Редактор Окно Справка
         </text>
 
         {/* Дерево сцены */}
-        <rect x="1" y="17" width="84" height="120" fill="var(--diagram-node)" />
-        <text x="8" y="28" fontSize="7" fill="var(--diagram-muted)" fontFamily="ui-monospace, monospace">
+        <rect x="1" y="17" width="84" height="120"  style={{ fill: 'hsl(var(--diagram-node))' }} />
+        <text
+          x="8"
+          y="28"
+          fontSize="7"
+          fontFamily="ui-monospace, monospace"
+          style={{ fill: 'hsl(var(--diagram-muted))' }}
+        >
           Сцена
         </text>
-        <rect x="10" y="34" width="52" height="8" rx="2" fill="var(--diagram-stroke)" opacity="0.35" />
-        <rect x="18" y="48" width="44" height="8" rx="2" fill="var(--diagram-stroke)" opacity="0.25" />
-        <rect x="26" y="62" width="40" height="8" rx="2" fill="var(--diagram-stroke)" opacity="0.25" />
+        <rect
+          x="10"
+          y="34"
+          width="52"
+          height="8"
+          rx="2"
+          opacity="0.35"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
+        <rect
+          x="18"
+          y="48"
+          width="44"
+          height="8"
+          rx="2"
+          opacity="0.25"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
+        <rect
+          x="26"
+          y="62"
+          width="40"
+          height="8"
+          rx="2"
+          opacity="0.25"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
 
         {/* Файловая система */}
-        <rect x="1" y="137" width="160" height="42" fill="var(--diagram-node)" />
-        <text x="8" y="148" fontSize="7" fill="var(--diagram-muted)" fontFamily="ui-monospace, monospace">
+        <rect x="1" y="137" width="160" height="42"  style={{ fill: 'hsl(var(--diagram-node))' }} />
+        <text
+          x="8"
+          y="148"
+          fontSize="7"
+          fontFamily="ui-monospace, monospace"
+          style={{ fill: 'hsl(var(--diagram-muted))' }}
+        >
           Файловая система
         </text>
-        <rect x="8" y="154" width="60" height="7" rx="2" fill="var(--diagram-stroke)" opacity="0.25" />
-        <rect x="76" y="154" width="48" height="7" rx="2" fill="var(--diagram-stroke)" opacity="0.25" />
+        <rect
+          x="8"
+          y="154"
+          width="60"
+          height="7"
+          rx="2"
+          opacity="0.25"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
+        <rect
+          x="76"
+          y="154"
+          width="48"
+          height="7"
+          rx="2"
+          opacity="0.25"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
 
         {/* Область просмотра */}
-        <rect x="85" y="17" width="150" height="120" fill="var(--diagram-surface)" stroke="var(--diagram-weak)" strokeDasharray="4 3" />
-        <text x="160" y="80" fontSize="8" textAnchor="middle" fill="var(--diagram-muted)" fontFamily="ui-monospace, monospace">
+        <rect
+          x="85"
+          y="17"
+          width="150"
+          height="120"
+          strokeDasharray="4 3"
+          style={{ fill: 'hsl(var(--diagram-surface))', stroke: 'hsl(var(--diagram-weak))' }}
+        />
+        <text
+          x="160"
+          y="80"
+          fontSize="8"
+          textAnchor="middle"
+          fontFamily="ui-monospace, monospace"
+          style={{ fill: 'hsl(var(--diagram-muted))' }}
+        >
           2D / 3D вид
         </text>
 
         {/* Инспектор */}
-        <rect x="235" y="17" width="84" height="120" fill="var(--diagram-node)" />
-        <text x="242" y="28" fontSize="7" fill="var(--diagram-muted)" fontFamily="ui-monospace, monospace">
+        <rect x="235" y="17" width="84" height="120"  style={{ fill: 'hsl(var(--diagram-node))' }} />
+        <text
+          x="242"
+          y="28"
+          fontSize="7"
+          fontFamily="ui-monospace, monospace"
+          style={{ fill: 'hsl(var(--diagram-muted))' }}
+        >
           Инспектор
         </text>
-        <rect x="242" y="34" width="70" height="8" rx="2" fill="var(--diagram-stroke)" opacity="0.25" />
-        <rect x="242" y="48" width="70" height="8" rx="2" fill="var(--diagram-stroke)" opacity="0.25" />
+        <rect
+          x="242"
+          y="34"
+          width="70"
+          height="8"
+          rx="2"
+          opacity="0.25"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
+        <rect
+          x="242"
+          y="48"
+          width="70"
+          height="8"
+          rx="2"
+          opacity="0.25"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
 
         {/* Нижняя панель */}
-        <rect x="85" y="137" width="234" height="42" fill="var(--diagram-node)" />
-        <text x="92" y="148" fontSize="7" fill="var(--diagram-muted)" fontFamily="ui-monospace, monospace">
+        <rect x="85" y="137" width="234" height="42"  style={{ fill: 'hsl(var(--diagram-node))' }} />
+        <text
+          x="92"
+          y="148"
+          fontSize="7"
+          fontFamily="ui-monospace, monospace"
+          style={{ fill: 'hsl(var(--diagram-muted))' }}
+        >
           Вывод / Ошибки
         </text>
-        <rect x="92" y="154" width="120" height="7" rx="2" fill="var(--diagram-stroke)" opacity="0.25" />
+        <rect
+          x="92"
+          y="154"
+          width="120"
+          height="7"
+          rx="2"
+          opacity="0.25"
+          style={{ fill: 'hsl(var(--diagram-stroke))' }}
+        />
 
         {/* Подсветка целевой области */}
         <Highlight area={stub.area} />
@@ -93,8 +217,8 @@ export function ScreenshotStub({ stub, className }: ScreenshotStubProps) {
 
 function Highlight({ area }: { area: ScreenshotStub['area'] }) {
   const common = {
-    fill: 'var(--diagram-accent-soft)',
-    stroke: 'var(--diagram-accent)',
+    fill: 'hsl(var(--diagram-accent-soft))',
+    stroke: 'hsl(var(--diagram-accent))',
     strokeWidth: 2,
   }
   switch (area) {

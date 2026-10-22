@@ -60,7 +60,7 @@ export const stage00: Stage = {
       why:
         'Это единственное место, где задаются вещи, которые нельзя задать в сцене: размер окна, имя игры, физические слои, карта ввода. Многие «невозможные» баги — настройки не там, где их искали.',
       details: [
-        'Открыть: File → Project Settings («Файл → Настройки проекта»).',
+        'Открыть: Project → Project Settings («Проект → Настройки проекта»).',
         'Вкладки: General, Display, Physics, Input Map, Layer Names, Autoload, Plugins.',
         'Главная сцена задаётся в General → Application → Run → Main Scene.',
         'Input Map — здесь создаются действия (jump, shoot), а не в коде.',
@@ -92,9 +92,9 @@ export const stage00: Stage = {
         'Через две недели вы захотите «вернуть как было». Без Git это невозможно, а с Git — одна команда. Для новичка это главная страховка от страха экспериментировать.',
       details: [
         'Файл .gitignore обязателен: в нём исключается папка .godot — это кэш движка, он не нужен в репозитории.',
-        'Встроенная интеграция: Editor Settings → Version Control → Version Control Metadata → Git.',
+        'Встроенная интеграция: Project → Version Control → Create/Override Version Control Metadata… → Git.',
         'Ручные команды git тоже работают — встроенный плагин их не требует.',
-        'Коммит делает снимок состояния. Возврат к любому снимку — git log, потом git checkout <commit>.',
+        'Коммит делает снимок состояния. Посмотреть историю — git log. Вернуть один файл к снимку: git restore --source=<commit> -- main.gd. Вернуть проект целиком, не потеряв ветку: git switch -c rescue <commit> (создаст ветку с этого места) или git switch --detach <commit> (вернёт ровно в тот снимок, но останется в detached HEAD).',
       ],
       diagramRef: 'git-workflow',
     },
@@ -105,10 +105,10 @@ export const stage00: Stage = {
       title: 'Скачать и установить Godot 4',
       where: 'Страница загрузок на godotengine.org',
       action:
-        'Скачайте «Godot Engine 4.3 (stable)» для вашей ОС. Это zip с одной программой — установка не нужна, просто распакуйте и запустите godot.windows.opt.tools.64.exe (или аналог).',
+        'Скачайте «Godot Engine 4.7.2 (stable)» для вашей ОС. Это zip с одной программой — установка не нужна, просто распакуйте и запустите Godot_v4.7.2-stable_win64.exe (на macOS — Godot_v4.7.2-stable_macos.universal).',
       result: 'Открылся Project Manager (окно со списком проектов).',
       note:
-        'Версию выбирайте осознанно: сайт написан под 4.3/4.4. Более свежие 4.x тоже подойдут — различия отмечены в тексте.',
+        'Версию выбирайте осознанно: курс проверен на 4.7.2, базовая линия — 4.4. Более свежие 4.x тоже подойдут — различия отмечены в тексте.',
       screenshot: {
         area: 'toolbar',
         caption: 'Project Manager — окно, из которого запускается редактор',
@@ -134,9 +134,9 @@ export const stage00: Stage = {
     {
       id: 'layout',
       title: 'Настроить рабочее пространство редактора',
-      where: 'Layout → Panels / Layout → Scene, FileSystem, Inspector',
+      where: 'Editor → Editor Docks → Scene, FileSystem, Inspector',
       action:
-        'Включите панели Scene, FileSystem и Inspector. Откройте нижнюю панель через Layout → Panels → Output. Панели можно перетаскивать за заголовок и скрывать — вернуть их можно в том же меню Layout.',
+        'Включите панели Scene, FileSystem и Inspector. Откройте нижнюю панель через Editor → Editor Docks → Output. Панели можно перетаскивать за заголовок и скрывать — вернуть их можно в том же меню Editor → Editor Docks. Готовые раскладки целиком — Editor → Editor Layout.',
       result: 'Видны четыре нужные панели: Scene, FileSystem, Inspector, Output.',
       screenshot: {
         area: 'toolbar',
@@ -149,8 +149,8 @@ export const stage00: Stage = {
       title: 'Создать первую сцену',
       where: 'Scene → New Scene → 2D Scene',
       action:
-        'В меню Scene выберите New Scene → 2D Scene. Появится сцена с узлом Node2D в корне. Нажмите Ctrl+S и сохраните как res://main.tscn — так она станет главной сценой.',
-      result: 'В панели Scene видно дерево из одного узла Node2D, файл main.tscn сохранён.',
+        'В меню Scene выберите New Scene → 2D Scene. Появится сцена с узлом Node2D в корне. Нажмите Ctrl+S и сохраните как res://main.tscn. Имя файла само по себе не делает сцену главной: сделайте это правой кнопкой по res://main.tscn в панели FileSystem → Set as Main Scene, либо Project → Project Settings → Application → Run → Main Scene → res://main.tscn. F6 запускает только текущую сцену — удобно проверять её отдельно.',
+      result: 'В панели Scene видно дерево из одного узла Node2D, файл main.tscn сохранён и назначен главной сценой.',
       screenshot: {
         area: 'filesystem',
         caption: 'FileSystem — файл main.tscn после сохранения',
@@ -163,7 +163,7 @@ export const stage00: Stage = {
       title: 'Написать первый скрипт',
       where: 'Scene → Attach Script… на узле Node2D',
       action:
-        'Выделите узел Node2D в панели Scene, нажмите Ctrl+A или меню Scene → Attach Script. В окне выберите язык GDScript, задайте имя main.gd и нажмите Create.',
+        'Выделите узел Node2D в панели Scene и нажмите на него правой кнопкой → Attach Script… (то же — кнопка со скриптом справа от имени узла). В окне выберите язык GDScript, задайте имя main.gd и нажмите Create.',
       result: 'Открылся редактор скриптов с функцией _ready(), узел теперь показывает скрипт в Inspector.',
       screenshot: {
         area: 'viewport',
@@ -183,7 +183,7 @@ export const stage00: Stage = {
     {
       id: 'input-map',
       title: 'Создать первое действие ввода',
-      where: 'File → Project Settings → вкладка Input Map',
+      where: 'Project → Project Settings → вкладка Input Map',
       action:
         'В строке сверху напишите «jump», нажмите Add. Справа нажмите на пустое поле и назначьте клавишу: выберите «Space» и в поле события появится «Keycode: Space».',
       result: 'Действие jump создано и привязано к пробелу.',
@@ -198,9 +198,9 @@ export const stage00: Stage = {
     {
       id: 'git-init',
       title: 'Подключить Git',
-      where: 'Терминал в папке проекта + Editor Settings → Version Control',
+      where: 'Терминал в папке проекта + Project → Version Control',
       action:
-        'Откройте терминал в папке проекта и выполните git init, затем создайте файл .gitignore с содержимым из примера ниже. В редакторе: Editor → Editor Settings → Version Control → Version Control Metadata → Git.',
+        'Откройте терминал в папке проекта и выполните git init, затем создайте файл .gitignore с содержимым из примера ниже. В редакторе: Project → Version Control → Create/Override Version Control Metadata… и выберите Git. Пункт «Version Control Metadata: None / Git» есть и в диалоге создания проекта (Project Manager → Create).',
       result: 'В панели FileSystem появились изменения файлов, Git их видит.',
       note:
         'Если Git не установлен — поставьте его до этого шага. Встроенная интеграция Godot только показывает файлы, команды git всё равно выполняются в терминале.',
@@ -224,13 +224,15 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_frames += 1
-	_update_label()
+	# Печатаем раз в секунду: иначе Output засоряется десятками строк.
+	if _frames % 60 == 0:
+		_update_label()
 
 func _update_label() -> void:
 	print("Кадр: ", _frames, ", прошло: ", Time.get_ticks_msec(), " мс")
 `,
       explanation:
-        'Две функции — весь Godot в двух строках кода. `_ready()` вызывается один раз, когда узел появился в дереве: здесь логично печатать стартовое сообщение. `_process(delta)` вызывается каждый кадр: здесь считаем кадры. Параметр `delta` — это сколько секунд прошло с прошлого кадра; умножая скорость на `delta`, движение не «дёргается» на разных частотах монитора.',
+        'Две функции — весь Godot в двух строках кода. `_ready()` вызывается один раз, когда узел появился в дереве: здесь логично печатать стартовое сообщение. `_process(delta)` вызывается каждый кадр: здесь считаем кадры. Параметр `delta` — это сколько секунд прошло с прошлого кадра; умножая скорость на `delta`, движение не «дёргается» на разных частотах монитора. Печатать из `_process` можно каждый кадр, но Output засоряется — в примере печать идёт раз в секунду (`_frames % 60 == 0`).',
       versionNote:
         'В Godot 4 переменные счётчиков принято объявлять через `var _frames := 0` — тип выводится автоматически.',
     },
@@ -286,7 +288,7 @@ desktop.ini
       id: 't0-1',
       title: 'Собрать редактор под себя',
       description:
-        'Откройте Layout → Panels и включите панель Animations. Перетащите панель Inspector в правую часть, если она слева. Сохраните раскладку через Editor → Editor Settings → Interface → Editor → Scene/Inspector Position.',
+        'Откройте Editor → Editor Docks и включите панель Animations. Перетащите панель Inspector в правую часть, если она слева. Раскладка сохраняется сама: Godot запоминает её в файле editor_layout.cfg. Отдельной кнопки «сохранить раскладку» нет.',
       level: 1,
       hint: 'Раскладка редактора сохраняется автоматически, отдельного «сохранить» не нужно.',
     },
@@ -302,7 +304,7 @@ desktop.ini
       id: 't0-3',
       title: 'Первый коммит',
       description:
-        'Выполните git add ., git commit -m "Первый проект: пустая сцена со счётчиком кадров". Затем намеренно испортите скрипт (уберите скобку), посмотрите ошибку в Output и верните файл через git checkout -- res://main.gd.',
+        'Выполните git add ., git commit -m "Первый проект: пустая сцена со счётчиком кадров". Затем намеренно испортите скрипт (уберите скобку), посмотрите ошибку в Output и верните файл через git checkout -- main.gd (git знает пути относительно корня проекта, а res:// — это путь внутри Godot).',
       level: 2,
       hint: 'Если файл уже закоммичен, git checkout -- <путь> вернёт его к состоянию последнего коммита.',
     },
@@ -321,8 +323,8 @@ desktop.ini
       'Сделайте сцену, в которой квадрат (ColorRect) двигается по экрану и отскакивает от краёв. Ничего красивого — важно, чтобы вы поняли, как устроены узел, сцена, скрипт и запуск.',
     requirements: [
       'Сцена main.tscn с корнем CharacterBody2D (или Node2D) и вложенным узлом-квадратом.',
-      'Движение по нажатию стрелок, скорость задаётся переменной, а не «зашита» в код.',
-      'Отражение от границ окна.',
+      'Движение по нажатию стрелок, скорость задаётся переменной, а не «зашита» в код. Стрелки — это готовые действия ввода: ui_left, ui_right, ui_up, ui_down есть в Input Map по умолчанию, создавать их не нужно. Читаются так: Input.is_action_pressed("ui_left").',
+      'Отражение от границ окна: размер окна берётся из get_viewport_rect().size — сравнивайте position с границами и меняйте знак скорости.',
       'Счётчик кадров в Output — для самопроверки, что игра идёт.',
     ],
     stretch: [
@@ -361,7 +363,7 @@ desktop.ini
   resources: [
     {
       title: 'Официальный туториал «Your first 2D game»',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/2d/2d_game.html',
+      url: 'https://docs.godotengine.org/en/stable/getting_started/first_2d_game/index.html',
       kind: 'docs',
       note: 'Параллельный маршрут: тот же результат, но в официальном видео-формате.',
     },
@@ -373,7 +375,7 @@ desktop.ini
     },
     {
       title: 'Документация по Input Map',
-      url: 'https://docs.godotengine.org/en/stable/tutorials/inputs/inputmap.html',
+      url: 'https://docs.godotengine.org/en/stable/tutorials/inputs/index.html',
       kind: 'docs',
     },
     {

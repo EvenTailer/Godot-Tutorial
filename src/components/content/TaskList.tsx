@@ -27,8 +27,9 @@ export function TaskList({ stageId, tasks, isDone, onToggle, className }: TaskLi
         return (
           <li
             key={task.id}
+            id={`task-${task.id}`}
             className={cn(
-              'flex flex-col rounded-lg border bg-card p-4 shadow-xs transition-colors duration-150',
+              'scroll-mt-24 flex flex-col rounded-lg border bg-card p-4 shadow-xs transition-colors duration-150',
               done ? 'border-success/40' : 'border-border',
             )}
           >
@@ -87,8 +88,9 @@ export function CriteriaList({
         return (
           <li
             key={criterion.id}
+            id={`criterion-${criterion.id}`}
             className={cn(
-              'rounded-lg border bg-card p-4 shadow-xs transition-colors duration-150',
+              'scroll-mt-24 rounded-lg border bg-card p-4 shadow-xs transition-colors duration-150',
               done ? 'border-success/40' : 'border-border',
             )}
           >
